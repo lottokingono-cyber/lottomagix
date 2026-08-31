@@ -9,6 +9,7 @@ import {
   frequencyMap,
   generateGrid,
   normalize,
+  padNumber,
   reappearedInitials,
   summaryStats,
 } from "@/lib/propagation";
@@ -188,7 +189,7 @@ function Index() {
                         {ROW_LABELS[r]}
                       </td>
                       {row.map((value, c) => {
-                        const state = cellState(r, value, result.duplicates, result.reappeared);
+                        const state = cellState(value, result.duplicates, result.reappeared);
                         return (
                           <td
                             key={c}
