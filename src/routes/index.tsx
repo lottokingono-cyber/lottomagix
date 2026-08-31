@@ -44,7 +44,7 @@ function cellState(
   reappeared: Set<number>,
 ): CellState {
   const key = normalize(value);
-  if (rowIndex === 0 && reappeared.has(key)) return "reappeared";
+  if (reappeared.has(key)) return "reappeared";
   if (duplicates.has(key)) return "duplicate";
   return "neutral";
 }
@@ -246,7 +246,7 @@ function Index() {
                       ({group.values.length})
                     </h3>
                     <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
-                      {group.values.map(formatNumber).join(" · ")}
+                      {group.values.map(padNumber).join(" · ")}
                     </p>
                   </div>
                 ))}
