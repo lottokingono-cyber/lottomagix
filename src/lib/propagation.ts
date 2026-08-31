@@ -111,3 +111,8 @@ export function summaryStats(
 export function formatNumber(value: number): string {
   return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(6)));
 }
+
+/** Display a normalized value zero-padded to two digits (e.g. 1 -> "01"). */
+export function padNumber(value: number): string {
+  return formatNumber(value).padStart(2, "0");
+}

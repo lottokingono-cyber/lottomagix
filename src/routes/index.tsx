@@ -9,6 +9,7 @@ import {
   frequencyMap,
   generateGrid,
   normalize,
+  padNumber,
   reappearedInitials,
   summaryStats,
 } from "@/lib/propagation";
@@ -38,13 +39,12 @@ export const Route = createFileRoute("/")({
 type CellState = "neutral" | "duplicate" | "reappeared";
 
 function cellState(
-  rowIndex: number,
   value: number,
   duplicates: Set<number>,
   reappeared: Set<number>,
 ): CellState {
   const key = normalize(value);
-  if (rowIndex === 0 && reappeared.has(key)) return "reappeared";
+  if (reappeared.has(key)) return "reappeared";
   if (duplicates.has(key)) return "duplicate";
   return "neutral";
 }
@@ -189,7 +189,7 @@ function Index() {
                         {ROW_LABELS[r]}
                       </td>
                       {row.map((value, c) => {
-                        const state = cellState(r, value, result.duplicates, result.reappeared);
+                        const state = cellState(value, result.duplicates, result.reappeared);
                         return (
                           <td
                             key={c}
@@ -246,7 +246,7 @@ function Index() {
                       ({group.values.length})
                     </h3>
                     <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
-                      {group.values.map(formatNumber).join(" · ")}
+                      {group.values.map(padNumber).join(" · ")}
                     </p>
                   </div>
                 ))}
