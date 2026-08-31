@@ -11,5 +11,8 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+    // Netlify sets the NETLIFY env var during its builds — emit a Netlify-compatible
+    // output (functions + redirects) there, keep the default target elsewhere.
+    ...(process.env["NETLIFY"] ? { target: "netlify" } : {}),
   },
 });
