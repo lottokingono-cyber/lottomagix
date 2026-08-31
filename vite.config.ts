@@ -13,6 +13,6 @@ export default defineConfig({
     server: { entry: "server" },
     // Netlify sets the NETLIFY env var during its builds — emit a Netlify-compatible
     // output (functions + redirects) there, keep the default target elsewhere.
-    ...(process.env.NETLIFY ? { target: "netlify" } : {}),
+    ...(process.env["NETLIFY"] ? { target: "netlify" } : {}),
   },
 });
