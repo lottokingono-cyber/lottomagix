@@ -38,7 +38,6 @@ export const Route = createFileRoute("/")({
 type CellState = "neutral" | "duplicate" | "reappeared";
 
 function cellState(
-  rowIndex: number,
   value: number,
   duplicates: Set<number>,
   reappeared: Set<number>,
