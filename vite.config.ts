@@ -11,8 +11,10 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    // Netlify sets the NETLIFY env var during its builds — emit a Netlify-compatible
-    // output (functions + redirects) there, keep the default target elsewhere.
-    ...(process.env["NETLIFY"] ? { target: "netlify" } : {}),
   },
+  // Netlify sets the NETLIFY env var during its builds — emit a Netlify-compatible
+  // Nitro preset (functions + redirects under .netlify/) there, keep the default
+  // preset (cloudflare-module) elsewhere. This must be a top-level `nitro` option;
+  // TanStack Start's own config schema has no `target` field.
+  ...(process.env["NETLIFY"] ? { nitro: { preset: "netlify" } } : {}),
 });
