@@ -281,6 +281,30 @@ function Index() {
               )}
             </section>
 
+            {/* Summary stats */}
+            <section className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {[
+                ["Total cells", result.stats.totalCells],
+                ["Unique numbers", result.stats.uniqueNumbers],
+                ["Appearing once", result.stats.appearingOnce],
+                ["Appearing more than once", result.stats.appearingMoreThanOnce],
+                ["Total duplicate cells", result.stats.duplicateCells],
+                ["Initial numbers reappearing", result.stats.initialReappearing],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-lg border border-border bg-card p-3 shadow-sm"
+                >
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    {label}
+                  </p>
+                  <p className="mt-1 font-mono text-xl font-bold tabular-nums text-foreground">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </section>
+
             {/* Pairwise difference grid */}
             <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
               <h2 className="px-5 pt-5 text-sm font-semibold uppercase tracking-wide text-foreground">
