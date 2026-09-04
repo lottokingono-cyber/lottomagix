@@ -394,23 +394,31 @@ function Index() {
             </section>
 
 
-            {/* Reappeared initials */}
-            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+            {/* Combined frequency */}
+            <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Initial Numbers That Reappeared
+                Combined Frequency — Both Grids
               </h2>
-              {result.reappeared.size > 0 ? (
-                <p className="mt-3 font-mono text-sm font-semibold text-reappeared-foreground">
-                  {[...result.reappeared]
-                    .sort((a, b) => a - b)
-                    .map(formatNumber)
-                    .join(" · ")}
-                </p>
-              ) : (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  No initial numbers reappeared.
-                </p>
-              )}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Total occurrences of each number across Grid 1 and Grid 2 combined.
+              </p>
+              <div className="mt-4 space-y-4">
+                {result.combinedGroups.map((group) => (
+                  <div key={group.count}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {group.count === 1
+                        ? "Appears Once"
+                        : group.count === 2
+                          ? "Appears Twice"
+                          : `Appears ${group.count} Times`}{" "}
+                      ({group.values.length})
+                    </h3>
+                    <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
+                      {group.values.map(padNumber).join(" · ")}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </section>
 
             {/* Cross-grid matches */}
