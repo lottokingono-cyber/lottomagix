@@ -12,6 +12,9 @@ import {
   padNumber,
   reappearedInitials,
   summaryStats,
+  generateDifferenceGrid,
+  getFrequencyMap,
+  getCrossGridMatches,
 } from "@/lib/propagation";
 
 export const Route = createFileRoute("/")({
@@ -36,15 +39,17 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type CellState = "neutral" | "duplicate" | "reappeared";
+type CellState = "neutral" | "duplicate" | "reappeared" | "cross";
 
 function cellState(
   value: number,
   duplicates: Set<number>,
   reappeared: Set<number>,
+  cross: Set<number>,
 ): CellState {
   const key = normalize(value);
   if (reappeared.has(key)) return "reappeared";
+  if (cross.has(key)) return "cross";
   if (duplicates.has(key)) return "duplicate";
   return "neutral";
 }
@@ -52,6 +57,7 @@ function cellState(
 const CELL_STYLES: Record<CellState, string> = {
   neutral: "bg-card text-foreground border-border",
   duplicate: "bg-duplicate text-duplicate-foreground border-duplicate-border font-semibold",
+  cross: "bg-crossmatch text-crossmatch-foreground border-crossmatch-border font-semibold",
   reappeared: "bg-reappeared text-reappeared-foreground border-reappeared-border font-semibold",
 };
 
@@ -64,6 +70,10 @@ function Index() {
     if (!initials) return null;
     const grid = generateGrid(initials);
     const freq = frequencyMap(grid);
+    const diffGrid = generateDifferenceGrid(initials);
+    const diffValues = diffGrid.flat();
+    const diffFreq = getFrequencyMap(diffValues);
+    const matches = getCrossGridMatches(freq, diffFreq);
     return {
       grid,
       freq,
@@ -71,6 +81,14 @@ function Index() {
       reappeared: reappearedInitials(grid),
       groups: frequencyGroups(freq),
       stats: summaryStats(freq, reappearedInitials(grid)),
+      initials,
+      diffGrid,
+      diffCount: diffValues.length,
+      diffFreq,
+      diffDuplicates: duplicateSet(diffFreq),
+      diffGroups: frequencyGroups(diffFreq),
+      matches,
+      crossSet: new Set(matches.map((m) => m.value)),
     };
   }, [initials]);
 
@@ -162,6 +180,10 @@ function Index() {
                 <span className="inline-block h-3 w-3 rounded-sm border border-reappeared-border bg-reappeared" />
                 Initial number reappeared
               </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-3 w-3 rounded-sm border border-crossmatch-border bg-crossmatch" />
+                Repeated in BOTH grids
+              </span>
             </div>
 
             {/* Grid */}
@@ -189,7 +211,12 @@ function Index() {
                         {ROW_LABELS[r]}
                       </td>
                       {row.map((value, c) => {
-                        const state = cellState(value, result.duplicates, result.reappeared);
+                        const state = cellState(
+                          value,
+                          result.duplicates,
+                          result.reappeared,
+                          result.crossSet,
+                        );
                         return (
                           <td
                             key={c}
@@ -203,6 +230,95 @@ function Index() {
                   ))}
                 </tbody>
               </table>
+            </section>
+
+
+            {/* Pairwise difference grid */}
+            <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
+              <h2 className="px-5 pt-5 text-sm font-semibold uppercase tracking-wide text-foreground">
+                Pairwise Difference Grid
+              </h2>
+              <p className="px-5 pb-3 pt-1 text-xs text-muted-foreground">
+                Absolute difference of each initial number against every number to its right —{" "}
+                {result.diffCount} values.
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[680px] border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="border-b border-border bg-muted/60 px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
+                        vs
+                      </th>
+                      {result.initials.map((n, c) => (
+                        <th
+                          key={c}
+                          className="border-b border-l border-border bg-muted/60 px-2 py-2 text-center font-mono text-xs font-semibold text-foreground"
+                        >
+                          {padNumber(normalize(n))}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.diffGrid.map((row, r) => (
+                      <tr key={r}>
+                        <td className="whitespace-nowrap border-b border-border bg-muted/40 px-3 py-1.5 text-center font-mono text-xs font-semibold text-foreground">
+                          {padNumber(normalize(result.initials[r] ?? 0))}
+                        </td>
+                        {Array.from({ length: COL_COUNT }, (_, c) => {
+                          if (c <= r) {
+                            return (
+                              <td
+                                key={c}
+                                className="border-b border-l border-border bg-muted/30 px-2 py-1.5"
+                              />
+                            );
+                          }
+                          const value = row[c - r - 1] ?? 0;
+                          const state = cellState(
+                            value,
+                            result.diffDuplicates,
+                            new Set<number>(),
+                            result.crossSet,
+                          );
+                          return (
+                            <td
+                              key={c}
+                              className={`border-b border-l px-2 py-1.5 text-center font-mono text-sm tabular-nums ${CELL_STYLES[state]}`}
+                            >
+                              {padNumber(value)}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* Difference frequency */}
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Difference Frequency
+              </h2>
+              <div className="mt-4 space-y-4">
+                {result.diffGroups.map((group) => (
+                  <div key={group.count}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {group.count === 1
+                        ? "Appears Once"
+                        : group.count === 2
+                          ? "Appears Twice"
+                          : `Appears ${group.count} Times`}{" "}
+                      ({group.values.length})
+                    </h3>
+                    <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
+                      {group.values.map(padNumber).join(" · ")}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </section>
 
             {/* Summary stats */}
@@ -270,6 +386,89 @@ function Index() {
                   No initial numbers reappeared.
                 </p>
               )}
+            </section>
+
+            {/* Cross-grid matches */}
+            <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Cross-Grid Matches
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Numbers repeated more than once in BOTH the propagation grid and the difference
+                grid.
+              </p>
+              {result.matches.length > 0 ? (
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full min-w-[420px] border-collapse text-sm">
+                    <thead>
+                      <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                        <th className="border-b border-border py-2 pr-4">Number</th>
+                        <th className="border-b border-border py-2 pr-4">Grid 1</th>
+                        <th className="border-b border-border py-2 pr-4">Grid 2</th>
+                        <th className="border-b border-border py-2">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.matches.map((m) => (
+                        <tr key={m.value}>
+                          <td className="border-b border-border py-2 pr-4">
+                            <span className="rounded-md border border-crossmatch-border bg-crossmatch px-2 py-0.5 font-mono font-bold text-crossmatch-foreground">
+                              {padNumber(m.value)}
+                            </span>
+                          </td>
+                          <td className="border-b border-border py-2 pr-4 font-mono tabular-nums text-foreground">
+                            appears {m.grid1} times
+                          </td>
+                          <td className="border-b border-border py-2 pr-4 font-mono tabular-nums text-foreground">
+                            appears {m.grid2} times
+                          </td>
+                          <td className="border-b border-border py-2 font-mono font-bold tabular-nums text-foreground">
+                            {m.total}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  No numbers repeat in both grids.
+                </p>
+              )}
+            </section>
+
+            {/* Cross-grid summary */}
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Cross-Grid Summary
+              </h2>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {[
+                  ["Grid 1 cells", result.stats.totalCells],
+                  ["Grid 2 differences", result.diffCount],
+                  ["Unique numbers in Grid 1", result.freq.size],
+                  ["Unique differences in Grid 2", result.diffFreq.size],
+                  ["Repeated numbers in Grid 1", result.duplicates.size],
+                  ["Repeated differences in Grid 2", result.diffDuplicates.size],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-lg border border-border bg-background p-3">
+                    <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {label}
+                    </p>
+                    <p className="mt-1 font-mono text-xl font-bold tabular-nums text-foreground">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 rounded-lg border-2 border-crossmatch-border bg-crossmatch p-4 text-center">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-crossmatch-foreground">
+                  Repeated in both grids
+                </p>
+                <p className="mt-1 font-mono text-3xl font-extrabold tabular-nums text-crossmatch-foreground">
+                  {result.matches.length}
+                </p>
+              </div>
             </section>
           </>
         )}
