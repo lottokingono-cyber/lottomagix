@@ -74,6 +74,11 @@ function Index() {
     const diffValues = diffGrid.flat();
     const diffFreq = getFrequencyMap(diffValues);
     const matches = getCrossGridMatches(freq, diffFreq);
+
+    const combinedFreq = new Map<number, number>();
+    for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
+    for (const [value, count] of diffFreq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
+
     return {
       grid,
       freq,
@@ -87,6 +92,7 @@ function Index() {
       diffFreq,
       diffDuplicates: duplicateSet(diffFreq),
       diffGroups: frequencyGroups(diffFreq),
+      combinedGroups: frequencyGroups(combinedFreq),
       matches,
       crossSet: new Set(matches.map((m) => m.value)),
     };
@@ -232,6 +238,72 @@ function Index() {
               </table>
             </section>
 
+            {/* Grid 1 frequency */}
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Number Frequency — Grid 1
+              </h2>
+              <div className="mt-4 space-y-4">
+                {result.groups.map((group) => (
+                  <div key={group.count}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {group.count === 1
+                        ? "Appears Once"
+                        : group.count === 2
+                          ? "Appears Twice"
+                          : `Appears ${group.count} Times`}{" "}
+                      ({group.values.length})
+                    </h3>
+                    <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
+                      {group.values.map(padNumber).join(" · ")}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Reappeared initials */}
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Initial Numbers That Reappeared
+              </h2>
+              {result.reappeared.size > 0 ? (
+                <p className="mt-3 font-mono text-sm font-semibold text-reappeared-foreground">
+                  {[...result.reappeared]
+                    .sort((a, b) => a - b)
+                    .map(formatNumber)
+                    .join(" · ")}
+                </p>
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  No initial numbers reappeared.
+                </p>
+              )}
+            </section>
+
+            {/* Summary stats */}
+            <section className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {[
+                ["Total cells", result.stats.totalCells],
+                ["Unique numbers", result.stats.uniqueNumbers],
+                ["Appearing once", result.stats.appearingOnce],
+                ["Appearing more than once", result.stats.appearingMoreThanOnce],
+                ["Total duplicate cells", result.stats.duplicateCells],
+                ["Initial numbers reappearing", result.stats.initialReappearing],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-lg border border-border bg-card p-3 shadow-sm"
+                >
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    {label}
+                  </p>
+                  <p className="mt-1 font-mono text-xl font-bold tabular-nums text-foreground">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </section>
 
             {/* Pairwise difference grid */}
             <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
@@ -297,10 +369,10 @@ function Index() {
               </div>
             </section>
 
-            {/* Difference frequency */}
+            {/* Grid 2 frequency */}
             <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Difference Frequency
+                Number Frequency — Grid 2
               </h2>
               <div className="mt-4 space-y-4">
                 {result.diffGroups.map((group) => (
@@ -321,37 +393,19 @@ function Index() {
               </div>
             </section>
 
-            {/* Summary stats */}
-            <section className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {[
-                ["Total cells", result.stats.totalCells],
-                ["Unique numbers", result.stats.uniqueNumbers],
-                ["Appearing once", result.stats.appearingOnce],
-                ["Appearing more than once", result.stats.appearingMoreThanOnce],
-                ["Total duplicate cells", result.stats.duplicateCells],
-                ["Initial numbers reappearing", result.stats.initialReappearing],
-              ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className="rounded-lg border border-border bg-card p-3 shadow-sm"
-                >
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                    {label}
-                  </p>
-                  <p className="mt-1 font-mono text-xl font-bold tabular-nums text-foreground">
-                    {value}
-                  </p>
-                </div>
-              ))}
-            </section>
 
-            {/* Frequency panel */}
-            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+
+
+            {/* Combined frequency */}
+            <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Number Frequency
+                Combined Frequency — Both Grids
               </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Total occurrences of each number across Grid 1 and Grid 2 combined.
+              </p>
               <div className="mt-4 space-y-4">
-                {result.groups.map((group) => (
+                {result.combinedGroups.map((group) => (
                   <div key={group.count}>
                     <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       {group.count === 1
@@ -367,25 +421,6 @@ function Index() {
                   </div>
                 ))}
               </div>
-            </section>
-
-            {/* Reappeared initials */}
-            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Initial Numbers That Reappeared
-              </h2>
-              {result.reappeared.size > 0 ? (
-                <p className="mt-3 font-mono text-sm font-semibold text-reappeared-foreground">
-                  {[...result.reappeared]
-                    .sort((a, b) => a - b)
-                    .map(formatNumber)
-                    .join(" · ")}
-                </p>
-              ) : (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  No initial numbers reappeared.
-                </p>
-              )}
             </section>
 
             {/* Cross-grid matches */}
