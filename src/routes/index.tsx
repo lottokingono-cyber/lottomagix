@@ -345,10 +345,10 @@ function Index() {
               </div>
             </section>
 
-            {/* Difference frequency */}
+            {/* Grid 2 frequency */}
             <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Difference Frequency
+                Number Frequency — Grid 2
               </h2>
               <div className="mt-4 space-y-4">
                 {result.diffGroups.map((group) => (
