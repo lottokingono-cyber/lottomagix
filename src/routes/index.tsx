@@ -351,29 +351,6 @@ function Index() {
               ))}
             </section>
 
-            {/* Frequency panel */}
-            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Number Frequency
-              </h2>
-              <div className="mt-4 space-y-4">
-                {result.groups.map((group) => (
-                  <div key={group.count}>
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      {group.count === 1
-                        ? "Appears Once"
-                        : group.count === 2
-                          ? "Appears Twice"
-                          : `Appears ${group.count} Times`}{" "}
-                      ({group.values.length})
-                    </h3>
-                    <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
-                      {group.values.map(padNumber).join(" · ")}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
 
             {/* Reappeared initials */}
             <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
