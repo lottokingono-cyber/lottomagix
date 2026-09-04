@@ -116,3 +116,50 @@ export function formatNumber(value: number): string {
 export function padNumber(value: number): string {
   return formatNumber(value).padStart(2, "0");
 }
+
+/** Row-wise pairwise absolute differences: row i compares initials[i] with all to its right. */
+export function generateDifferenceGrid(initials: number[]): number[][] {
+  const rows: number[][] = [];
+  for (let i = 0; i < initials.length - 1; i++) {
+    const row: number[] = [];
+    for (let j = i + 1; j < initials.length; j++) {
+      row.push(Math.abs((initials[i] ?? 0) - (initials[j] ?? 0)));
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+/** Generic frequency map over any list of values, normalized with Math.abs(). */
+export function getFrequencyMap(values: number[]): Map<number, number> {
+  const freq = new Map<number, number>();
+  for (const v of values) {
+    const key = normalize(v);
+    freq.set(key, (freq.get(key) ?? 0) + 1);
+  }
+  return freq;
+}
+
+export function flatten(grid: number[][]): number[] {
+  return grid.flat();
+}
+
+export interface CrossGridMatch {
+  value: number;
+  grid1: number;
+  grid2: number;
+  total: number;
+}
+
+/** Numbers repeated (>1) in BOTH grids. */
+export function getCrossGridMatches(
+  grid1Frequency: Map<number, number>,
+  grid2Frequency: Map<number, number>,
+): CrossGridMatch[] {
+  const matches: CrossGridMatch[] = [];
+  for (const [value, c1] of grid1Frequency) {
+    const c2 = grid2Frequency.get(value) ?? 0;
+    if (c1 > 1 && c2 > 1) matches.push({ value, grid1: c1, grid2: c2, total: c1 + c2 });
+  }
+  return matches.sort((a, b) => b.total - a.total || a.value - b.value);
+}
