@@ -113,7 +113,17 @@ function Index() {
       buildPairTable("Combined — All Four Grids", frequencyGroups(allFreq)),
     ];
 
+    const gridPairComparisons = [
+      { label: "Grid 1 × Grid 2", a: "Grid 1", b: "Grid 2", matches: getCrossGridMatches(freq, diffFreq) },
+      { label: "Grid 1 × Grid 3A", a: "Grid 1", b: "Grid 3A", matches: getCrossGridMatches(freq, grid3AFreq) },
+      { label: "Grid 1 × Grid 3B", a: "Grid 1", b: "Grid 3B", matches: getCrossGridMatches(freq, grid3BFreq) },
+      { label: "Grid 2 × Grid 3A", a: "Grid 2", b: "Grid 3A", matches: getCrossGridMatches(diffFreq, grid3AFreq) },
+      { label: "Grid 2 × Grid 3B", a: "Grid 2", b: "Grid 3B", matches: getCrossGridMatches(diffFreq, grid3BFreq) },
+      { label: "Grid 3A × Grid 3B", a: "Grid 3A", b: "Grid 3B", matches: getCrossGridMatches(grid3AFreq, grid3BFreq) },
+    ];
+
     return {
+      gridPairComparisons,
       pairTables,
       duplicatePairs: findDuplicatePairs(pairTables),
       grid,
