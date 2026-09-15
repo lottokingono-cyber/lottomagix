@@ -9,6 +9,7 @@ import {
   frequencyMap,
   generateGrid,
   normalize,
+  normalize3B,
   padNumber,
   reappearedInitials,
   summaryStats,
@@ -88,7 +89,9 @@ function Index() {
     const grid3AFreq = getFrequencyMap(grid3AValues);
     const grid3B = generateAddGrid(initials, OFFSETS);
     const grid3BValues = grid3B.flat();
-    const grid3BFreq = getFrequencyMap(grid3BValues);
+    // Grid 3B frequency uses values normalized to their last two digits (178 -> 78).
+    const grid3BNormValues = grid3BValues.map(normalize3B);
+    const grid3BFreq = getFrequencyMap(grid3BNormValues);
 
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
