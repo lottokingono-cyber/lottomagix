@@ -621,6 +621,7 @@ function Index() {
                                 new Set<number>(),
                                 new Set<number>(),
                                 g.initials,
+                                g.norm,
                               );
                               return (
                                 <td
