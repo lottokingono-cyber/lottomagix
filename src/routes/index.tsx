@@ -571,6 +571,7 @@ function Index() {
                 initials: result.grid3AInitials,
                 groups: result.grid3AGroups,
                 summary: result.grid3ASummary,
+                norm: undefined as ((v: number) => number) | undefined,
               },
               {
                 key: "3B",
@@ -581,6 +582,7 @@ function Index() {
                 initials: result.grid3BInitials,
                 groups: result.grid3BGroups,
                 summary: result.grid3BSummary,
+                norm: normalize3B as ((v: number) => number) | undefined,
               },
             ].map((g) => (
               <div key={g.key}>
