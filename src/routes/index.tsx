@@ -590,6 +590,12 @@ function Index() {
                   <h3 className="px-5 pt-5 text-sm font-semibold uppercase tracking-wide text-foreground">
                     {g.title}
                   </h3>
+                  {g.key === "3B" && (
+                    <p className="px-5 pt-1 text-xs text-muted-foreground">
+                      Frequency and highlighting reduce values to their last two digits (e.g. 178
+                      → 78). Displayed cells keep the full calculated value.
+                    </p>
+                  )}
                   <div className="mt-3 overflow-x-auto">
                     <table className="w-full min-w-[680px] border-collapse">
                       <thead>
