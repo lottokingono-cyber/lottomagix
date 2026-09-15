@@ -240,3 +240,82 @@ export function initialsAppearedInGrid(grid: number[][], initials: number[]): Se
   }
   return appeared;
 }
+
+/** A unique unordered pair of numbers, always stored larger-first. */
+export interface NumberPair {
+  high: number;
+  low: number;
+  key: string;
+}
+
+/** All unique pairs (no repetition, order-insensitive) from a list of values. */
+export function generatePairs(values: number[]): NumberPair[] {
+  const unique = [...new Set(values.map(normalize))];
+  const pairs: NumberPair[] = [];
+  for (let i = 0; i < unique.length; i++) {
+    for (let j = i + 1; j < unique.length; j++) {
+      const a = unique[i] ?? 0;
+      const b = unique[j] ?? 0;
+      const high = Math.max(a, b);
+      const low = Math.min(a, b);
+      pairs.push({ high, low, key: `${high}-${low}` });
+    }
+  }
+  return pairs.sort((x, y) => y.high - x.high || y.low - x.low);
+}
+
+export interface PairLine {
+  label: string;
+  count: number;
+  pairs: NumberPair[];
+}
+
+export interface PairTable {
+  table: string;
+  lines: PairLine[];
+}
+
+export interface DuplicatePair {
+  key: string;
+  high: number;
+  low: number;
+  sources: string[];
+}
+
+/** Human label for a frequency group. */
+export function frequencyLabel(count: number): string {
+  if (count === 1) return "Appears Once";
+  if (count === 2) return "Appears Twice";
+  return `Appears ${count} Times`;
+}
+
+/** Build the per-line pair lists for one frequency table. */
+export function buildPairTable(table: string, groups: FrequencyGroup[]): PairTable {
+  return {
+    table,
+    lines: groups
+      .map((g) => ({
+        label: frequencyLabel(g.count),
+        count: g.count,
+        pairs: generatePairs(g.values),
+      }))
+      .filter((line) => line.pairs.length > 0),
+  };
+}
+
+/** Pairs occurring in two or more frequency lines across all tables. */
+export function findDuplicatePairs(tables: PairTable[]): DuplicatePair[] {
+  const map = new Map<string, DuplicatePair>();
+  for (const t of tables) {
+    for (const line of t.lines) {
+      for (const p of line.pairs) {
+        const entry = map.get(p.key) ?? { key: p.key, high: p.high, low: p.low, sources: [] };
+        entry.sources.push(`${t.table} — ${line.label}`);
+        map.set(p.key, entry);
+      }
+    }
+  }
+  return [...map.values()]
+    .filter((e) => e.sources.length > 1)
+    .sort((a, b) => b.sources.length - a.sources.length || b.high - a.high || b.low - a.low);
+}
