@@ -94,6 +94,10 @@ function Index() {
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
     for (const [value, count] of diffFreq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
 
+    const allFreq = new Map<number, number>(combinedFreq);
+    for (const [value, count] of grid3AFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
+    for (const [value, count] of grid3BFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
+
     return {
       grid,
       freq,
@@ -108,6 +112,9 @@ function Index() {
       diffDuplicates: duplicateSet(diffFreq),
       diffGroups: frequencyGroups(diffFreq),
       combinedGroups: frequencyGroups(combinedFreq),
+      allGroups: frequencyGroups(allFreq),
+      allTotalCells:
+        grid.flat().length + diffValues.length + grid3AValues.length + grid3BValues.length,
       matches,
       crossSet: new Set(matches.map((m) => m.value)),
       grid3A,
@@ -727,6 +734,34 @@ function Index() {
                   ))}
                 </tbody>
               </table>
+            </section>
+
+            {/* Combined frequency across all four grids */}
+            <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Combined Frequency — All Four Grids
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Total occurrences of each number across Grid 1, Grid 2, Grid 3A and Grid 3B (
+                {result.allTotalCells} cells).
+              </p>
+              <div className="mt-4 space-y-4">
+                {result.allGroups.map((group) => (
+                  <div key={group.count}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {group.count === 1
+                        ? "Appears Once"
+                        : group.count === 2
+                          ? "Appears Twice"
+                          : `Appears ${group.count} Times`}{" "}
+                      ({group.values.length})
+                    </h3>
+                    <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
+                      {group.values.map(padNumber).join(" · ")}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </section>
           </>
         )}
