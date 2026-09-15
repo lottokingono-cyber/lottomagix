@@ -108,6 +108,9 @@ function Index() {
       diffDuplicates: duplicateSet(diffFreq),
       diffGroups: frequencyGroups(diffFreq),
       combinedGroups: frequencyGroups(combinedFreq),
+      allGroups: frequencyGroups(allFreq),
+      allTotalCells:
+        grid.flat().length + diffValues.length + grid3AValues.length + grid3BValues.length,
       matches,
       crossSet: new Set(matches.map((m) => m.value)),
       grid3A,
