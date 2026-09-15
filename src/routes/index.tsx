@@ -102,7 +102,18 @@ function Index() {
     for (const [value, count] of grid3AFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
     for (const [value, count] of grid3BFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
 
+    const pairTables = [
+      buildPairTable("Grid 1", frequencyGroups(freq)),
+      buildPairTable("Grid 2", frequencyGroups(diffFreq)),
+      buildPairTable("Grid 3A", frequencyGroups(grid3AFreq)),
+      buildPairTable("Grid 3B", frequencyGroups(grid3BFreq)),
+      buildPairTable("Combined — Grids 1 & 2", frequencyGroups(combinedFreq)),
+      buildPairTable("Combined — All Four Grids", frequencyGroups(allFreq)),
+    ];
+
     return {
+      pairTables,
+      duplicatePairs: findDuplicatePairs(pairTables),
       grid,
       freq,
       duplicates: duplicateSet(freq),
