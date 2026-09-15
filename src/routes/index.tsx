@@ -19,6 +19,7 @@ import {
   generateSubtractGrid,
   generateAddGrid,
   getGridSummary,
+  initialsAppearedInGrid,
 } from "@/lib/propagation";
 
 export const Route = createFileRoute("/")({
@@ -43,17 +44,19 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type CellState = "neutral" | "duplicate" | "reappeared" | "cross";
+type CellState = "neutral" | "duplicate" | "reappeared" | "cross" | "initial";
 
 function cellState(
   value: number,
   duplicates: Set<number>,
   reappeared: Set<number>,
   cross: Set<number>,
+  initials?: Set<number>,
 ): CellState {
   const key = normalize(value);
   if (reappeared.has(key)) return "reappeared";
   if (cross.has(key)) return "cross";
+  if (initials?.has(key)) return "initial";
   if (duplicates.has(key)) return "duplicate";
   return "neutral";
 }
@@ -63,6 +66,7 @@ const CELL_STYLES: Record<CellState, string> = {
   duplicate: "bg-duplicate text-duplicate-foreground border-duplicate-border font-semibold",
   cross: "bg-crossmatch text-crossmatch-foreground border-crossmatch-border font-semibold",
   reappeared: "bg-reappeared text-reappeared-foreground border-reappeared-border font-semibold",
+  initial: "bg-initial text-initial-foreground border-initial-border font-semibold",
 };
 
 function Index() {
@@ -111,11 +115,13 @@ function Index() {
       grid3ADup: duplicateSet(grid3AFreq),
       grid3AGroups: frequencyGroups(grid3AFreq),
       grid3ASummary: getGridSummary(grid3AValues, grid3AFreq),
+      grid3AInitials: initialsAppearedInGrid(grid3A, initials),
       grid3B,
       grid3BFreq,
       grid3BDup: duplicateSet(grid3BFreq),
       grid3BGroups: frequencyGroups(grid3BFreq),
       grid3BSummary: getGridSummary(grid3BValues, grid3BFreq),
+      grid3BInitials: initialsAppearedInGrid(grid3B, initials),
     };
   }, [initials]);
 
@@ -210,6 +216,10 @@ function Index() {
               <span className="flex items-center gap-1.5">
                 <span className="inline-block h-3 w-3 rounded-sm border border-crossmatch-border bg-crossmatch" />
                 Repeated in BOTH grids
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-3 w-3 rounded-sm border border-initial-border bg-initial" />
+                Initial number appeared
               </span>
             </div>
 
@@ -544,6 +554,7 @@ function Index() {
                 sign: "−",
                 grid: result.grid3A,
                 dup: result.grid3ADup,
+                initials: result.grid3AInitials,
                 groups: result.grid3AGroups,
                 summary: result.grid3ASummary,
               },
@@ -553,6 +564,7 @@ function Index() {
                 sign: "+",
                 grid: result.grid3B,
                 dup: result.grid3BDup,
+                initials: result.grid3BInitials,
                 groups: result.grid3BGroups,
                 summary: result.grid3BSummary,
               },
@@ -586,18 +598,23 @@ function Index() {
                               {g.sign}
                               {OFFSETS[r]}
                             </td>
-                            {row.map((value, c) => (
-                              <td
-                                key={c}
-                                className={`border-b border-l px-2 py-1.5 text-center font-mono text-sm tabular-nums ${
-                                  g.dup.has(normalize(value))
-                                    ? CELL_STYLES.duplicate
-                                    : CELL_STYLES.neutral
-                                }`}
-                              >
-                                {formatNumber(value)}
-                              </td>
-                            ))}
+                            {row.map((value, c) => {
+                              const state = cellState(
+                                value,
+                                g.dup,
+                                new Set<number>(),
+                                new Set<number>(),
+                                g.initials,
+                              );
+                              return (
+                                <td
+                                  key={c}
+                                  className={`border-b border-l px-2 py-1.5 text-center font-mono text-sm tabular-nums ${CELL_STYLES[state]}`}
+                                >
+                                  {formatNumber(value)}
+                                </td>
+                              );
+                            })}
                           </tr>
                         ))}
                       </tbody>
