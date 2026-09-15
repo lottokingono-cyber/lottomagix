@@ -15,6 +15,10 @@ import {
   generateDifferenceGrid,
   getFrequencyMap,
   getCrossGridMatches,
+  OFFSETS,
+  generateSubtractGrid,
+  generateAddGrid,
+  getGridSummary,
 } from "@/lib/propagation";
 
 export const Route = createFileRoute("/")({
