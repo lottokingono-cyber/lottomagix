@@ -880,6 +880,66 @@ function Index() {
                 )}
               </div>
             </section>
+
+            {/* Grid-wise pairs comparison between the 4 grids */}
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Grid-Wise Pairs Comparison — The Four Grids
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Numbers that repeat (appear more than once) in both grids of each grid pairing,
+                with their counts in each grid.
+              </p>
+              <div className="mt-4 space-y-6">
+                {result.gridPairComparisons.map((cmp) => (
+                  <div key={cmp.label}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                      {cmp.label}{" "}
+                      <span className="text-muted-foreground">
+                        ({cmp.matches.length} shared repeated{" "}
+                        {cmp.matches.length === 1 ? "number" : "numbers"})
+                      </span>
+                    </h3>
+                    {cmp.matches.length === 0 ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        No number repeats in both grids.
+                      </p>
+                    ) : (
+                      <div className="mt-2 overflow-x-auto rounded-md border border-border">
+                        <table className="w-full text-left text-xs">
+                          <thead>
+                            <tr className="bg-muted/50 text-muted-foreground">
+                              <th className="px-3 py-2 font-medium">Number</th>
+                              <th className="px-3 py-2 font-medium">{cmp.a}</th>
+                              <th className="px-3 py-2 font-medium">{cmp.b}</th>
+                              <th className="px-3 py-2 font-medium">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {cmp.matches.map((m) => (
+                              <tr key={m.value}>
+                                <td className="border-t border-border px-3 py-1.5 font-mono font-semibold tabular-nums text-foreground">
+                                  {padNumber(m.value)}
+                                </td>
+                                <td className="border-t border-border px-3 py-1.5 font-mono tabular-nums text-foreground">
+                                  {m.grid1}
+                                </td>
+                                <td className="border-t border-border px-3 py-1.5 font-mono tabular-nums text-foreground">
+                                  {m.grid2}
+                                </td>
+                                <td className="border-t border-border px-3 py-1.5 font-mono font-semibold tabular-nums text-foreground">
+                                  {m.total}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
           </>
         )}
       </main>
