@@ -79,6 +79,13 @@ function Index() {
     const diffFreq = getFrequencyMap(diffValues);
     const matches = getCrossGridMatches(freq, diffFreq);
 
+    const grid3A = generateSubtractGrid(initials, OFFSETS);
+    const grid3AValues = grid3A.flat();
+    const grid3AFreq = getFrequencyMap(grid3AValues);
+    const grid3B = generateAddGrid(initials, OFFSETS);
+    const grid3BValues = grid3B.flat();
+    const grid3BFreq = getFrequencyMap(grid3BValues);
+
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
     for (const [value, count] of diffFreq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
