@@ -15,6 +15,10 @@ import {
   generateDifferenceGrid,
   getFrequencyMap,
   getCrossGridMatches,
+  OFFSETS,
+  generateSubtractGrid,
+  generateAddGrid,
+  getGridSummary,
 } from "@/lib/propagation";
 
 export const Route = createFileRoute("/")({
@@ -75,6 +79,13 @@ function Index() {
     const diffFreq = getFrequencyMap(diffValues);
     const matches = getCrossGridMatches(freq, diffFreq);
 
+    const grid3A = generateSubtractGrid(initials, OFFSETS);
+    const grid3AValues = grid3A.flat();
+    const grid3AFreq = getFrequencyMap(grid3AValues);
+    const grid3B = generateAddGrid(initials, OFFSETS);
+    const grid3BValues = grid3B.flat();
+    const grid3BFreq = getFrequencyMap(grid3BValues);
+
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
     for (const [value, count] of diffFreq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
@@ -95,6 +106,16 @@ function Index() {
       combinedGroups: frequencyGroups(combinedFreq),
       matches,
       crossSet: new Set(matches.map((m) => m.value)),
+      grid3A,
+      grid3AFreq,
+      grid3ADup: duplicateSet(grid3AFreq),
+      grid3AGroups: frequencyGroups(grid3AFreq),
+      grid3ASummary: getGridSummary(grid3AValues, grid3AFreq),
+      grid3B,
+      grid3BFreq,
+      grid3BDup: duplicateSet(grid3BFreq),
+      grid3BGroups: frequencyGroups(grid3BFreq),
+      grid3BSummary: getGridSummary(grid3BValues, grid3BFreq),
     };
   }, [initials]);
 
@@ -504,6 +525,191 @@ function Index() {
                   {result.matches.length}
                 </p>
               </div>
+            </section>
+
+            {/* Prime offset analysis */}
+            <section className="mt-10">
+              <h2 className="text-lg font-bold uppercase tracking-wide text-foreground">
+                Prime Offset Analysis
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Each initial number combined with the 24 prime offsets — 240 values per grid.
+              </p>
+            </section>
+
+            {[
+              {
+                key: "3A",
+                title: "Grid 3A — Initial Number Minus Prime Offsets",
+                sign: "−",
+                grid: result.grid3A,
+                dup: result.grid3ADup,
+                groups: result.grid3AGroups,
+                summary: result.grid3ASummary,
+              },
+              {
+                key: "3B",
+                title: "Grid 3B — Initial Number Plus Prime Offsets",
+                sign: "+",
+                grid: result.grid3B,
+                dup: result.grid3BDup,
+                groups: result.grid3BGroups,
+                summary: result.grid3BSummary,
+              },
+            ].map((g) => (
+              <div key={g.key}>
+                <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
+                  <h3 className="px-5 pt-5 text-sm font-semibold uppercase tracking-wide text-foreground">
+                    {g.title}
+                  </h3>
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full min-w-[680px] border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="sticky left-0 z-10 border-b border-border bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
+                            Offset
+                          </th>
+                          {result.initials.map((n, c) => (
+                            <th
+                              key={c}
+                              className="border-b border-l border-border bg-muted/60 px-2 py-2 text-center font-mono text-xs font-semibold text-foreground"
+                            >
+                              {formatNumber(n)}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {g.grid.map((row, r) => (
+                          <tr key={r}>
+                            <td className="sticky left-0 z-10 whitespace-nowrap border-b border-border bg-muted/40 px-3 py-1.5 text-center font-mono text-xs font-semibold text-foreground">
+                              {g.sign}
+                              {OFFSETS[r]}
+                            </td>
+                            {row.map((value, c) => (
+                              <td
+                                key={c}
+                                className={`border-b border-l px-2 py-1.5 text-center font-mono text-sm tabular-nums ${
+                                  g.dup.has(normalize(value))
+                                    ? CELL_STYLES.duplicate
+                                    : CELL_STYLES.neutral
+                                }`}
+                              >
+                                {formatNumber(value)}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                    Grid {g.key} Frequency
+                  </h3>
+                  <div className="mt-4 space-y-4">
+                    {g.groups.map((group) => (
+                      <div key={group.count}>
+                        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          {group.count === 1
+                            ? "Appears Once"
+                            : group.count === 2
+                              ? "Appears Twice"
+                              : `Appears ${group.count} Times`}{" "}
+                          ({group.values.length})
+                        </h4>
+                        <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
+                          {group.values.map(padNumber).join(" · ")}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                    Grid {g.key} Summary
+                  </h3>
+                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {[
+                      ["Total cells", g.summary.totalCells],
+                      ["Unique numbers", g.summary.uniqueNumbers],
+                      ["Appearing once", g.summary.appearingOnce],
+                      ["Appearing more than once", g.summary.appearingMoreThanOnce],
+                      ["Total duplicate cells", g.summary.duplicateCells],
+                      ["Highest frequency", g.summary.highestFrequency],
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-lg border border-border bg-background p-3">
+                        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                          {label}
+                        </p>
+                        <p className="mt-1 font-mono text-xl font-bold tabular-nums text-foreground">
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Number(s) with highest frequency
+                  </p>
+                  <p className="mt-1 font-mono text-sm font-semibold text-foreground">
+                    {g.summary.highestValues.map(padNumber).join(" · ")}
+                  </p>
+                </section>
+              </div>
+            ))}
+
+            {/* Prime offset comparison */}
+            <section className="mt-6 overflow-x-auto rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Prime Offset Analysis Summary
+              </h2>
+              <table className="mt-4 w-full min-w-[380px] border-collapse text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                    <th className="border-b border-border py-2 pr-4">Metric</th>
+                    <th className="border-b border-border py-2 pr-4">Grid 3A</th>
+                    <th className="border-b border-border py-2">Grid 3B</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["Total cells", result.grid3ASummary.totalCells, result.grid3BSummary.totalCells],
+                    [
+                      "Unique numbers",
+                      result.grid3ASummary.uniqueNumbers,
+                      result.grid3BSummary.uniqueNumbers,
+                    ],
+                    [
+                      "Appears once",
+                      result.grid3ASummary.appearingOnce,
+                      result.grid3BSummary.appearingOnce,
+                    ],
+                    [
+                      "Repeated numbers",
+                      result.grid3ASummary.appearingMoreThanOnce,
+                      result.grid3BSummary.appearingMoreThanOnce,
+                    ],
+                    [
+                      "Highest frequency",
+                      result.grid3ASummary.highestFrequency,
+                      result.grid3BSummary.highestFrequency,
+                    ],
+                  ].map(([label, a, b]) => (
+                    <tr key={label}>
+                      <td className="border-b border-border py-2 pr-4 text-foreground">{label}</td>
+                      <td className="border-b border-border py-2 pr-4 font-mono font-semibold tabular-nums text-foreground">
+                        {a}
+                      </td>
+                      <td className="border-b border-border py-2 font-mono font-semibold tabular-nums text-foreground">
+                        {b}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </section>
           </>
         )}
