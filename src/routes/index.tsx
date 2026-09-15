@@ -9,6 +9,7 @@ import {
   frequencyMap,
   generateGrid,
   normalize,
+  normalize3B,
   padNumber,
   reappearedInitials,
   summaryStats,
@@ -52,8 +53,9 @@ function cellState(
   reappeared: Set<number>,
   cross: Set<number>,
   initials?: Set<number>,
+  normalizeFn: (v: number) => number = normalize,
 ): CellState {
-  const key = normalize(value);
+  const key = normalizeFn(value);
   if (reappeared.has(key)) return "reappeared";
   if (cross.has(key)) return "cross";
   if (initials?.has(key)) return "initial";
@@ -88,7 +90,9 @@ function Index() {
     const grid3AFreq = getFrequencyMap(grid3AValues);
     const grid3B = generateAddGrid(initials, OFFSETS);
     const grid3BValues = grid3B.flat();
-    const grid3BFreq = getFrequencyMap(grid3BValues);
+    // Grid 3B frequency uses values normalized to their last two digits (178 -> 78).
+    const grid3BNormValues = grid3BValues.map(normalize3B);
+    const grid3BFreq = getFrequencyMap(grid3BNormValues);
 
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
@@ -128,7 +132,10 @@ function Index() {
       grid3BDup: duplicateSet(grid3BFreq),
       grid3BGroups: frequencyGroups(grid3BFreq),
       grid3BSummary: getGridSummary(grid3BValues, grid3BFreq),
-      grid3BInitials: initialsAppearedInGrid(grid3B, initials),
+      grid3BInitials: initialsAppearedInGrid(
+        grid3B.map((row) => row.map(normalize3B)),
+        initials,
+      ),
     };
   }, [initials]);
 
@@ -564,6 +571,7 @@ function Index() {
                 initials: result.grid3AInitials,
                 groups: result.grid3AGroups,
                 summary: result.grid3ASummary,
+                norm: undefined as ((v: number) => number) | undefined,
               },
               {
                 key: "3B",
@@ -574,6 +582,7 @@ function Index() {
                 initials: result.grid3BInitials,
                 groups: result.grid3BGroups,
                 summary: result.grid3BSummary,
+                norm: normalize3B as ((v: number) => number) | undefined,
               },
             ].map((g) => (
               <div key={g.key}>
@@ -581,6 +590,12 @@ function Index() {
                   <h3 className="px-5 pt-5 text-sm font-semibold uppercase tracking-wide text-foreground">
                     {g.title}
                   </h3>
+                  {g.key === "3B" && (
+                    <p className="px-5 pt-1 text-xs text-muted-foreground">
+                      Frequency and highlighting reduce values to their last two digits (e.g. 178
+                      → 78). Displayed cells keep the full calculated value.
+                    </p>
+                  )}
                   <div className="mt-3 overflow-x-auto">
                     <table className="w-full min-w-[680px] border-collapse">
                       <thead>
@@ -612,6 +627,7 @@ function Index() {
                                 new Set<number>(),
                                 new Set<number>(),
                                 g.initials,
+                                g.norm,
                               );
                               return (
                                 <td

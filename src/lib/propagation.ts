@@ -159,6 +159,11 @@ export function generateAddGrid(initialNumbers: number[], offsets: number[]): nu
   return offsets.map((o) => initialNumbers.map((n) => n + o));
 }
 
+/** Grid 3B normalization: absolute value reduced to its last two digits (178 -> 78). */
+export function normalize3B(value: number): number {
+  return Math.abs(value) % 100;
+}
+
 /** Alias kept for readability alongside getFrequencyMap. */
 export const getFrequencyGroups = frequencyGroups;
 
