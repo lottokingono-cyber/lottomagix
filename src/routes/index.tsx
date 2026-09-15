@@ -53,8 +53,9 @@ function cellState(
   reappeared: Set<number>,
   cross: Set<number>,
   initials?: Set<number>,
+  normalizeFn: (v: number) => number = normalize,
 ): CellState {
-  const key = normalize(value);
+  const key = normalizeFn(value);
   if (reappeared.has(key)) return "reappeared";
   if (cross.has(key)) return "cross";
   if (initials?.has(key)) return "initial";
@@ -131,7 +132,10 @@ function Index() {
       grid3BDup: duplicateSet(grid3BFreq),
       grid3BGroups: frequencyGroups(grid3BFreq),
       grid3BSummary: getGridSummary(grid3BValues, grid3BFreq),
-      grid3BInitials: initialsAppearedInGrid(grid3B, initials),
+      grid3BInitials: initialsAppearedInGrid(
+        grid3B.map((row) => row.map(normalize3B)),
+        initials,
+      ),
     };
   }, [initials]);
 
