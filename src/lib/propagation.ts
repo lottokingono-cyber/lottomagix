@@ -144,6 +144,62 @@ export function flatten(grid: number[][]): number[] {
   return grid.flat();
 }
 
+/** The 24 prime offsets used by Grid 3A / Grid 3B. */
+export const OFFSETS = [
+  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89,
+];
+
+/** Rows = offsets, columns = initial numbers. Cell = initial - offset. */
+export function generateSubtractGrid(initialNumbers: number[], offsets: number[]): number[][] {
+  return offsets.map((o) => initialNumbers.map((n) => n - o));
+}
+
+/** Rows = offsets, columns = initial numbers. Cell = initial + offset. */
+export function generateAddGrid(initialNumbers: number[], offsets: number[]): number[][] {
+  return offsets.map((o) => initialNumbers.map((n) => n + o));
+}
+
+/** Alias kept for readability alongside getFrequencyMap. */
+export const getFrequencyGroups = frequencyGroups;
+
+export interface GridSummary {
+  totalCells: number;
+  uniqueNumbers: number;
+  appearingOnce: number;
+  appearingMoreThanOnce: number;
+  duplicateCells: number;
+  highestFrequency: number;
+  highestValues: number[];
+}
+
+export function getGridSummary(values: number[], freq: Map<number, number>): GridSummary {
+  let appearingOnce = 0;
+  let appearingMoreThanOnce = 0;
+  let duplicateCells = 0;
+  let highestFrequency = 0;
+  for (const count of freq.values()) {
+    if (count === 1) appearingOnce++;
+    else {
+      appearingMoreThanOnce++;
+      duplicateCells += count;
+    }
+    if (count > highestFrequency) highestFrequency = count;
+  }
+  const highestValues = [...freq.entries()]
+    .filter(([, c]) => c === highestFrequency)
+    .map(([v]) => v)
+    .sort((a, b) => a - b);
+  return {
+    totalCells: values.length,
+    uniqueNumbers: freq.size,
+    appearingOnce,
+    appearingMoreThanOnce,
+    duplicateCells,
+    highestFrequency,
+    highestValues,
+  };
+}
+
 export interface CrossGridMatch {
   value: number;
   grid1: number;
