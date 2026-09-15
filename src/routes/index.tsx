@@ -94,6 +94,10 @@ function Index() {
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
     for (const [value, count] of diffFreq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
 
+    const allFreq = new Map<number, number>(combinedFreq);
+    for (const [value, count] of grid3AFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
+    for (const [value, count] of grid3BFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
+
     return {
       grid,
       freq,
