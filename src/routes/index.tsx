@@ -99,6 +99,16 @@ function Index() {
       combinedGroups: frequencyGroups(combinedFreq),
       matches,
       crossSet: new Set(matches.map((m) => m.value)),
+      grid3A,
+      grid3AFreq,
+      grid3ADup: duplicateSet(grid3AFreq),
+      grid3AGroups: frequencyGroups(grid3AFreq),
+      grid3ASummary: getGridSummary(grid3AValues, grid3AFreq),
+      grid3B,
+      grid3BFreq,
+      grid3BDup: duplicateSet(grid3BFreq),
+      grid3BGroups: frequencyGroups(grid3BFreq),
+      grid3BSummary: getGridSummary(grid3BValues, grid3BFreq),
     };
   }, [initials]);
 
