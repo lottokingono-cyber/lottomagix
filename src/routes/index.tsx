@@ -554,6 +554,7 @@ function Index() {
                 sign: "−",
                 grid: result.grid3A,
                 dup: result.grid3ADup,
+                initials: result.grid3AInitials,
                 groups: result.grid3AGroups,
                 summary: result.grid3ASummary,
               },
@@ -563,6 +564,7 @@ function Index() {
                 sign: "+",
                 grid: result.grid3B,
                 dup: result.grid3BDup,
+                initials: result.grid3BInitials,
                 groups: result.grid3BGroups,
                 summary: result.grid3BSummary,
               },
@@ -596,18 +598,23 @@ function Index() {
                               {g.sign}
                               {OFFSETS[r]}
                             </td>
-                            {row.map((value, c) => (
-                              <td
-                                key={c}
-                                className={`border-b border-l px-2 py-1.5 text-center font-mono text-sm tabular-nums ${
-                                  g.dup.has(normalize(value))
-                                    ? CELL_STYLES.duplicate
-                                    : CELL_STYLES.neutral
-                                }`}
-                              >
-                                {formatNumber(value)}
-                              </td>
-                            ))}
+                            {row.map((value, c) => {
+                              const state = cellState(
+                                value,
+                                g.dup,
+                                new Set<number>(),
+                                new Set<number>(),
+                                g.initials,
+                              );
+                              return (
+                                <td
+                                  key={c}
+                                  className={`border-b border-l px-2 py-1.5 text-center font-mono text-sm tabular-nums ${CELL_STYLES[state]}`}
+                                >
+                                  {formatNumber(value)}
+                                </td>
+                              );
+                            })}
                           </tr>
                         ))}
                       </tbody>
