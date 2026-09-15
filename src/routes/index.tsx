@@ -113,7 +113,17 @@ function Index() {
       buildPairTable("Combined — All Four Grids", frequencyGroups(allFreq)),
     ];
 
+    const gridPairComparisons = [
+      { label: "Grid 1 × Grid 2", a: "Grid 1", b: "Grid 2", matches: getCrossGridMatches(freq, diffFreq) },
+      { label: "Grid 1 × Grid 3A", a: "Grid 1", b: "Grid 3A", matches: getCrossGridMatches(freq, grid3AFreq) },
+      { label: "Grid 1 × Grid 3B", a: "Grid 1", b: "Grid 3B", matches: getCrossGridMatches(freq, grid3BFreq) },
+      { label: "Grid 2 × Grid 3A", a: "Grid 2", b: "Grid 3A", matches: getCrossGridMatches(diffFreq, grid3AFreq) },
+      { label: "Grid 2 × Grid 3B", a: "Grid 2", b: "Grid 3B", matches: getCrossGridMatches(diffFreq, grid3BFreq) },
+      { label: "Grid 3A × Grid 3B", a: "Grid 3A", b: "Grid 3B", matches: getCrossGridMatches(grid3AFreq, grid3BFreq) },
+    ];
+
     return {
+      gridPairComparisons,
       pairTables,
       duplicatePairs: findDuplicatePairs(pairTables),
       grid,
@@ -868,6 +878,66 @@ function Index() {
                     No pair occurs in more than one frequency line.
                   </p>
                 )}
+              </div>
+            </section>
+
+            {/* Grid-wise pairs comparison between the 4 grids */}
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Grid-Wise Pairs Comparison — The Four Grids
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Numbers that repeat (appear more than once) in both grids of each grid pairing,
+                with their counts in each grid.
+              </p>
+              <div className="mt-4 space-y-6">
+                {result.gridPairComparisons.map((cmp) => (
+                  <div key={cmp.label}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                      {cmp.label}{" "}
+                      <span className="text-muted-foreground">
+                        ({cmp.matches.length} shared repeated{" "}
+                        {cmp.matches.length === 1 ? "number" : "numbers"})
+                      </span>
+                    </h3>
+                    {cmp.matches.length === 0 ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        No number repeats in both grids.
+                      </p>
+                    ) : (
+                      <div className="mt-2 overflow-x-auto rounded-md border border-border">
+                        <table className="w-full text-left text-xs">
+                          <thead>
+                            <tr className="bg-muted/50 text-muted-foreground">
+                              <th className="px-3 py-2 font-medium">Number</th>
+                              <th className="px-3 py-2 font-medium">{cmp.a}</th>
+                              <th className="px-3 py-2 font-medium">{cmp.b}</th>
+                              <th className="px-3 py-2 font-medium">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {cmp.matches.map((m) => (
+                              <tr key={m.value}>
+                                <td className="border-t border-border px-3 py-1.5 font-mono font-semibold tabular-nums text-foreground">
+                                  {padNumber(m.value)}
+                                </td>
+                                <td className="border-t border-border px-3 py-1.5 font-mono tabular-nums text-foreground">
+                                  {m.grid1}
+                                </td>
+                                <td className="border-t border-border px-3 py-1.5 font-mono tabular-nums text-foreground">
+                                  {m.grid2}
+                                </td>
+                                <td className="border-t border-border px-3 py-1.5 font-mono font-semibold tabular-nums text-foreground">
+                                  {m.total}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </section>
           </>
