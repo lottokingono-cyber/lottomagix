@@ -219,3 +219,19 @@ export function getCrossGridMatches(
   }
   return matches.sort((a, b) => b.total - a.total || a.value - b.value);
 }
+
+/** Normalized initial numbers that appear anywhere in the given grid. */
+export function initialsAppearedInGrid(grid: number[][], initials: number[]): Set<number> {
+  const gridValues = new Set<number>();
+  for (const row of grid) {
+    for (const value of row) {
+      gridValues.add(normalize(value));
+    }
+  }
+  const appeared = new Set<number>();
+  for (const value of initials) {
+    const key = normalize(value);
+    if (gridValues.has(key)) appeared.add(key);
+  }
+  return appeared;
+}

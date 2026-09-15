@@ -60,6 +60,9 @@
   --color-crossmatch: var(--crossmatch);
   --color-crossmatch-foreground: var(--crossmatch-foreground);
   --color-crossmatch-border: var(--crossmatch-border);
+  --color-initial: var(--initial);
+  --color-initial-foreground: var(--initial-foreground);
+  --color-initial-border: var(--initial-border);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -105,6 +108,9 @@
   --crossmatch: oklch(0.92 0.11 90);
   --crossmatch-foreground: oklch(0.42 0.12 75);
   --crossmatch-border: oklch(0.75 0.15 85);
+  --initial: oklch(0.95 0.12 95);
+  --initial-foreground: oklch(0.45 0.12 95);
+  --initial-border: oklch(0.75 0.16 95);
   --sidebar: oklch(0.984 0.003 247.858);
   --sidebar-foreground: oklch(0.129 0.042 264.695);
   --sidebar-primary: oklch(0.208 0.042 265.755);
@@ -149,6 +155,9 @@
   --crossmatch: oklch(0.42 0.1 85);
   --crossmatch-foreground: oklch(0.94 0.1 90);
   --crossmatch-border: oklch(0.62 0.14 85);
+  --initial: oklch(0.45 0.1 85);
+  --initial-foreground: oklch(0.95 0.1 90);
+  --initial-border: oklch(0.65 0.14 85);
   --sidebar: oklch(0.208 0.042 265.755);
   --sidebar-foreground: oklch(0.984 0.003 247.858);
   --sidebar-primary: oklch(0.488 0.243 264.376);
