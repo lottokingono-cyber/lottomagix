@@ -21,6 +21,8 @@ import {
   generateAddGrid,
   getGridSummary,
   initialsAppearedInGrid,
+  buildPairTable,
+  findDuplicatePairs,
 } from "@/lib/propagation";
 
 export const Route = createFileRoute("/")({
