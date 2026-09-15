@@ -21,6 +21,8 @@ import {
   generateAddGrid,
   getGridSummary,
   initialsAppearedInGrid,
+  buildPairTable,
+  findDuplicatePairs,
 } from "@/lib/propagation";
 
 export const Route = createFileRoute("/")({
@@ -102,7 +104,18 @@ function Index() {
     for (const [value, count] of grid3AFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
     for (const [value, count] of grid3BFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
 
+    const pairTables = [
+      buildPairTable("Grid 1", frequencyGroups(freq)),
+      buildPairTable("Grid 2", frequencyGroups(diffFreq)),
+      buildPairTable("Grid 3A", frequencyGroups(grid3AFreq)),
+      buildPairTable("Grid 3B", frequencyGroups(grid3BFreq)),
+      buildPairTable("Combined — Grids 1 & 2", frequencyGroups(combinedFreq)),
+      buildPairTable("Combined — All Four Grids", frequencyGroups(allFreq)),
+    ];
+
     return {
+      pairTables,
+      duplicatePairs: findDuplicatePairs(pairTables),
       grid,
       freq,
       duplicates: duplicateSet(freq),
@@ -777,6 +790,84 @@ function Index() {
                     </p>
                   </div>
                 ))}
+              </div>
+            </section>
+
+            {/* Pair permutations */}
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Pair Permutations
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Every unique two-number pair within each frequency line, larger number first. Pairs
+                are never repeated (34 56 and 56 34 count as one pair).
+              </p>
+              <div className="mt-4 space-y-6">
+                {result.pairTables.map((t) => (
+                  <div key={t.table}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                      {t.table}
+                    </h3>
+                    <div className="mt-2 space-y-3">
+                      {t.lines.map((line) => (
+                        <div key={line.count}>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            {line.label} ({line.pairs.length} pairs)
+                          </p>
+                          <div className="mt-1 max-h-48 overflow-y-auto rounded-md border border-border bg-muted/30 p-2">
+                            <p className="font-mono text-xs leading-relaxed text-foreground">
+                              {line.pairs
+                                .map((p) => `${padNumber(p.high)}-${padNumber(p.low)}`)
+                                .join(" · ")}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Duplicate pairs across frequency lines */}
+            <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Duplicate Pairs
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Pairs that occur in two or more frequency lines across the six tables, with the
+                exact table and line where each occurs ({result.duplicatePairs.length} pairs).
+              </p>
+              <div className="mt-4 max-h-[32rem] overflow-y-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="text-muted-foreground">
+                      <th className="border-b border-border py-2 pr-4 font-medium">Pair</th>
+                      <th className="border-b border-border py-2 pr-4 font-medium">Occurrences</th>
+                      <th className="border-b border-border py-2 font-medium">Where it occurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.duplicatePairs.map((p) => (
+                      <tr key={p.key}>
+                        <td className="border-b border-border py-2 pr-4 font-mono font-semibold tabular-nums text-foreground">
+                          {padNumber(p.high)}-{padNumber(p.low)}
+                        </td>
+                        <td className="border-b border-border py-2 pr-4 font-mono tabular-nums text-foreground">
+                          {p.sources.length}
+                        </td>
+                        <td className="border-b border-border py-2 text-foreground">
+                          {p.sources.join("; ")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {result.duplicatePairs.length === 0 && (
+                  <p className="py-3 text-xs text-muted-foreground">
+                    No pair occurs in more than one frequency line.
+                  </p>
+                )}
               </div>
             </section>
           </>
