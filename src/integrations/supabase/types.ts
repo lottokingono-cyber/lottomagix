@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      draws: {
+        Row: {
+          created_at: string
+          draw_date: string
+          game_name: string
+          id: string
+          initial_numbers: number[]
+          machine_numbers: number[] | null
+          notes: string | null
+          provider: string
+          winning_numbers: number[] | null
+        }
+        Insert: {
+          created_at?: string
+          draw_date: string
+          game_name: string
+          id?: string
+          initial_numbers: number[]
+          machine_numbers?: number[] | null
+          notes?: string | null
+          provider: string
+          winning_numbers?: number[] | null
+        }
+        Update: {
+          created_at?: string
+          draw_date?: string
+          game_name?: string
+          id?: string
+          initial_numbers?: number[]
+          machine_numbers?: number[] | null
+          notes?: string | null
+          provider?: string
+          winning_numbers?: number[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
