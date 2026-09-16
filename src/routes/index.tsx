@@ -23,6 +23,7 @@ import {
   initialsAppearedInGrid,
   buildPairTable,
   findDuplicatePairs,
+  searchPairs,
 } from "@/lib/propagation";
 
 export const Route = createFileRoute("/")({
@@ -77,6 +78,9 @@ function Index() {
   const [inputs, setInputs] = useState<string[]>(Array(COL_COUNT).fill(""));
   const [error, setError] = useState<string | null>(null);
   const [initials, setInitials] = useState<number[] | null>(null);
+  const [pairInputs, setPairInputs] = useState<string[]>(Array(5).fill(""));
+  const [pairError, setPairError] = useState<string | null>(null);
+  const [pairSearch, setPairSearch] = useState<number[] | null>(null);
 
   const result = useMemo(() => {
     if (!initials) return null;
@@ -181,7 +185,32 @@ function Index() {
     setInputs(Array(COL_COUNT).fill(""));
     setInitials(null);
     setError(null);
+    setPairInputs(Array(5).fill(""));
+    setPairSearch(null);
+    setPairError(null);
   };
+
+  const handlePairChange = (index: number, raw: string) => {
+    if (raw !== "" && raw !== "-" && !/^-?\d*\.?\d*$/.test(raw)) return;
+    setPairInputs((prev) => prev.map((v, i) => (i === index ? raw : v)));
+  };
+
+  const handlePairSearch = () => {
+    const parsed = pairInputs.map((v) => (v.trim() === "" || v.trim() === "-" ? NaN : Number(v)));
+    if (parsed.some((n) => Number.isNaN(n) || !Number.isFinite(n))) {
+      setPairError("Please enter all 5 valid numbers before searching.");
+      return;
+    }
+    if (new Set(parsed.map(normalize)).size !== parsed.length) {
+      setPairError("The 5 numbers must be different (ignoring the minus sign).");
+      return;
+    }
+    setPairError(null);
+    setPairSearch(parsed);
+  };
+
+  const pairHits =
+    pairSearch && result ? searchPairs(pairSearch, result.pairTables) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -939,6 +968,85 @@ function Index() {
                   </div>
                 ))}
               </div>
+            </section>
+
+            {/* Pair search */}
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Pair Search
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Enter 5 numbers to form their 10 unique pairs and see exactly where each pair
+                occurs across all six pair tables. Matching ignores the minus sign.
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                {pairInputs.map((value, i) => (
+                  <label key={i} className="block">
+                    <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                      Search {i + 1}
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={value}
+                      onChange={(e) => handlePairChange(i, e.target.value)}
+                      placeholder="0"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30"
+                    />
+                  </label>
+                ))}
+              </div>
+              {pairError && (
+                <p className="mt-3 text-sm font-medium text-destructive">{pairError}</p>
+              )}
+              <div className="mt-4">
+                <button
+                  onClick={handlePairSearch}
+                  className="rounded-md bg-primary px-6 py-2.5 text-sm font-bold tracking-wide text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                >
+                  SEARCH PAIRS
+                </button>
+              </div>
+              {pairHits && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {pairHits.length} pairs from{" "}
+                    {pairSearch?.map((n) => padNumber(normalize(n))).join(" · ")}
+                  </p>
+                  <div className="overflow-x-auto rounded-md border border-border">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="bg-muted/50 text-muted-foreground">
+                          <th className="px-3 py-2 font-medium">Pair</th>
+                          <th className="px-3 py-2 font-medium">Occurrences</th>
+                          <th className="px-3 py-2 font-medium">Where it occurs</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pairHits.map((hit) => (
+                          <tr key={hit.pair.key}>
+                            <td className="border-t border-border px-3 py-1.5 font-mono font-semibold tabular-nums text-foreground">
+                              {padNumber(hit.pair.high)}-{padNumber(hit.pair.low)}
+                            </td>
+                            <td className="border-t border-border px-3 py-1.5 font-mono tabular-nums text-foreground">
+                              {hit.sources.length}
+                            </td>
+                            <td className="border-t border-border px-3 py-1.5 text-foreground">
+                              {hit.sources.length === 0 ? (
+                                <span className="text-muted-foreground">
+                                  Does not occur in any table.
+                                </span>
+                              ) : (
+                                hit.sources.join("; ")
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </section>
           </>
         )}
