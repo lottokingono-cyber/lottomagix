@@ -185,6 +185,28 @@ function Index() {
     setInputs(Array(COL_COUNT).fill(""));
     setInitials(null);
     setError(null);
+    setPairInputs(Array(5).fill(""));
+    setPairSearch(null);
+    setPairError(null);
+  };
+
+  const handlePairChange = (index: number, raw: string) => {
+    if (raw !== "" && raw !== "-" && !/^-?\d*\.?\d*$/.test(raw)) return;
+    setPairInputs((prev) => prev.map((v, i) => (i === index ? raw : v)));
+  };
+
+  const handlePairSearch = () => {
+    const parsed = pairInputs.map((v) => (v.trim() === "" || v.trim() === "-" ? NaN : Number(v)));
+    if (parsed.some((n) => Number.isNaN(n) || !Number.isFinite(n))) {
+      setPairError("Please enter all 5 valid numbers before searching.");
+      return;
+    }
+    if (new Set(parsed.map(normalize)).size !== parsed.length) {
+      setPairError("The 5 numbers must be different (ignoring the minus sign).");
+      return;
+    }
+    setPairError(null);
+    setPairSearch(parsed);
   };
 
   return (
