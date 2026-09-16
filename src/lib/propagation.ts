@@ -303,6 +303,30 @@ export function buildPairTable(table: string, groups: FrequencyGroup[]): PairTab
   };
 }
 
+export interface PairSearchHit {
+  pair: NumberPair;
+  sources: string[];
+}
+
+/**
+ * Search where each unique pair formed from the given numbers occurs
+ * across the pair tables. 5 numbers produce 10 pairs (no repetition).
+ */
+export function searchPairs(numbers: number[], tables: PairTable[]): PairSearchHit[] {
+  const pairs = generatePairs(numbers);
+  const index = new Map<string, string[]>();
+  for (const t of tables) {
+    for (const line of t.lines) {
+      for (const p of line.pairs) {
+        const list = index.get(p.key) ?? [];
+        list.push(`${t.table} — ${line.label}`);
+        index.set(p.key, list);
+      }
+    }
+  }
+  return pairs.map((pair) => ({ pair, sources: index.get(pair.key) ?? [] }));
+}
+
 /** Pairs occurring in two or more frequency lines across all tables. */
 export function findDuplicatePairs(tables: PairTable[]): DuplicatePair[] {
   const map = new Map<string, DuplicatePair>();
