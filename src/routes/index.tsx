@@ -23,6 +23,7 @@ import {
   initialsAppearedInGrid,
   buildPairTable,
   findDuplicatePairs,
+  searchPairs,
 } from "@/lib/propagation";
 
 export const Route = createFileRoute("/")({
@@ -77,6 +78,9 @@ function Index() {
   const [inputs, setInputs] = useState<string[]>(Array(COL_COUNT).fill(""));
   const [error, setError] = useState<string | null>(null);
   const [initials, setInitials] = useState<number[] | null>(null);
+  const [pairInputs, setPairInputs] = useState<string[]>(Array(5).fill(""));
+  const [pairError, setPairError] = useState<string | null>(null);
+  const [pairSearch, setPairSearch] = useState<number[] | null>(null);
 
   const result = useMemo(() => {
     if (!initials) return null;
