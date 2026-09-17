@@ -25,6 +25,9 @@ import {
   findDuplicatePairs,
   searchPairs,
 } from "@/lib/propagation";
+import { DrawPanel } from "@/components/DrawPanel";
+import { ForecastPanel } from "@/components/ForecastPanel";
+import type { DrawRow } from "@/lib/draws";
 
 export const Route = createFileRoute("/")({
   head: () => ({
