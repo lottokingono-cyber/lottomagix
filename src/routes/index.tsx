@@ -25,6 +25,9 @@ import {
   findDuplicatePairs,
   searchPairs,
 } from "@/lib/propagation";
+import { DrawPanel } from "@/components/DrawPanel";
+import { ForecastPanel } from "@/components/ForecastPanel";
+import type { DrawRow } from "@/lib/draws";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -81,6 +84,8 @@ function Index() {
   const [pairInputs, setPairInputs] = useState<string[]>(Array(5).fill(""));
   const [pairError, setPairError] = useState<string | null>(null);
   const [pairSearch, setPairSearch] = useState<number[] | null>(null);
+  const [meta, setMeta] = useState({ gameName: "", provider: "", drawDate: "" });
+  const [history, setHistory] = useState<DrawRow[]>([]);
 
   const result = useMemo(() => {
     if (!initials) return null;
@@ -144,6 +149,10 @@ function Index() {
       diffGroups: frequencyGroups(diffFreq),
       combinedGroups: frequencyGroups(combinedFreq),
       allGroups: frequencyGroups(allFreq),
+      hottest: [...allFreq.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0] - b[0])
+        .slice(0, 20)
+        .map(([value, count]) => ({ value, count })),
       allTotalCells:
         grid.flat().length + diffValues.length + grid3AValues.length + grid3BValues.length,
       matches,
@@ -266,6 +275,18 @@ function Index() {
             </button>
           </div>
         </section>
+
+        <DrawPanel
+          meta={meta}
+          onMetaChange={setMeta}
+          initials={initials}
+          onLoad={(loaded) => {
+            setInputs(loaded.map((n) => String(n)));
+            setInitials(loaded);
+            setError(null);
+          }}
+          onHistory={setHistory}
+        />
 
         {result && (
           <>
@@ -1048,7 +1069,23 @@ function Index() {
                 </div>
               )}
             </section>
+            <ForecastPanel
+              gameName={meta.gameName}
+              provider={meta.provider}
+              drawDate={meta.drawDate}
+              initials={result.initials}
+              hottest={result.hottest}
+              reappeared={[...result.reappeared]}
+              crossGrid={result.matches.map((m) => ({ value: m.value, count: m.total }))}
+              duplicatePairs={result.duplicatePairs.map((p) => p.key)}
+              history={history.map((h) => ({
+                drawDate: h.draw_date,
+                initials: h.initial_numbers,
+                winning: h.winning_numbers ?? [],
+              }))}
+            />
           </>
+
         )}
       </main>
     </div>
