@@ -1069,7 +1069,23 @@ function Index() {
                 </div>
               )}
             </section>
+            <ForecastPanel
+              gameName={meta.gameName}
+              provider={meta.provider}
+              drawDate={meta.drawDate}
+              initials={result.initials}
+              hottest={result.hottest}
+              reappeared={[...result.reappeared]}
+              crossGrid={result.matches.map((m) => ({ value: m.value, count: m.total }))}
+              duplicatePairs={result.duplicatePairs.map((p) => p.key)}
+              history={history.map((h) => ({
+                drawDate: h.draw_date,
+                initials: h.initial_numbers,
+                winning: h.winning_numbers ?? [],
+              }))}
+            />
           </>
+
         )}
       </main>
     </div>
