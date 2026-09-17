@@ -84,6 +84,8 @@ function Index() {
   const [pairInputs, setPairInputs] = useState<string[]>(Array(5).fill(""));
   const [pairError, setPairError] = useState<string | null>(null);
   const [pairSearch, setPairSearch] = useState<number[] | null>(null);
+  const [meta, setMeta] = useState({ gameName: "", provider: "", drawDate: "" });
+  const [history, setHistory] = useState<DrawRow[]>([]);
 
   const result = useMemo(() => {
     if (!initials) return null;
