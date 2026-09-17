@@ -276,6 +276,18 @@ function Index() {
           </div>
         </section>
 
+        <DrawPanel
+          meta={meta}
+          onMetaChange={setMeta}
+          initials={initials}
+          onLoad={(loaded) => {
+            setInputs(loaded.map((n) => String(n)));
+            setInitials(loaded);
+            setError(null);
+          }}
+          onHistory={setHistory}
+        />
+
         {result && (
           <>
             {/* Legend */}
