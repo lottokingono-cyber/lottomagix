@@ -149,6 +149,10 @@ function Index() {
       diffGroups: frequencyGroups(diffFreq),
       combinedGroups: frequencyGroups(combinedFreq),
       allGroups: frequencyGroups(allFreq),
+      hottest: [...allFreq.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0] - b[0])
+        .slice(0, 20)
+        .map(([value, count]) => ({ value, count })),
       allTotalCells:
         grid.flat().length + diffValues.length + grid3AValues.length + grid3BValues.length,
       matches,
