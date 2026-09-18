@@ -50,6 +50,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pair_searches: {
+        Row: {
+          created_at: string
+          draw_date: string | null
+          game_name: string | null
+          id: string
+          provider: string | null
+          results: Json
+          search_numbers: number[]
+        }
+        Insert: {
+          created_at?: string
+          draw_date?: string | null
+          game_name?: string | null
+          id?: string
+          provider?: string | null
+          results: Json
+          search_numbers: number[]
+        }
+        Update: {
+          created_at?: string
+          draw_date?: string | null
+          game_name?: string | null
+          id?: string
+          provider?: string | null
+          results?: Json
+          search_numbers?: number[]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

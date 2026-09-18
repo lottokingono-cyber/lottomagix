@@ -13,6 +13,23 @@ const ForecastInput = z.object({
   reappeared: z.array(z.number()).default([]),
   crossGrid: z.array(NumberStat).default([]),
   duplicatePairs: z.array(z.string()).default([]),
+  savedPairSearches: z
+    .array(
+      z.object({
+        label: z.string().default(""),
+        numbers: z.array(z.number()).default([]),
+        pairs: z
+          .array(
+            z.object({
+              pair: z.string(),
+              occurrences: z.number(),
+              where: z.array(z.string()).default([]),
+            }),
+          )
+          .default([]),
+      }),
+    )
+    .default([]),
   history: z
     .array(
       z.object({
@@ -82,7 +99,22 @@ export const forecastNumbers = createServerFn({ method: "POST" })
             )
             .join(" | ")}`
         : "No saved draw history yet.",
+      data.savedPairSearches.length
+        ? `Saved pair searches (user-flagged numbers and exactly where their pairs occur): ${data.savedPairSearches
+            .slice(0, 15)
+            .map(
+              (s) =>
+                `${s.label || "search"} [${s.numbers.join(" ")}] → ${
+                  s.pairs
+                    .slice(0, 10)
+                    .map((p) => `${p.pair} ×${p.occurrences} (${p.where.join("; ")})`)
+                    .join(" | ") || "no pair occurred"
+                }`,
+            )
+            .join(" || ")}`
+        : "No saved pair searches yet.",
     ].join("\n");
+
 
     const result = streamText({
       model: provider.responses("openai/gpt-6-astra"),

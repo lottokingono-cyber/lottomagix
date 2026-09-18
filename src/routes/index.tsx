@@ -27,7 +27,9 @@ import {
 } from "@/lib/propagation";
 import { DrawPanel } from "@/components/DrawPanel";
 import { ForecastPanel } from "@/components/ForecastPanel";
+import { PairSearchPanel } from "@/components/PairSearchPanel";
 import type { DrawRow } from "@/lib/draws";
+import type { PairSearchRow } from "@/lib/pairSearches";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,6 +88,7 @@ function Index() {
   const [pairSearch, setPairSearch] = useState<number[] | null>(null);
   const [meta, setMeta] = useState({ gameName: "", provider: "", drawDate: "" });
   const [history, setHistory] = useState<DrawRow[]>([]);
+  const [savedPairSearches, setSavedPairSearches] = useState<PairSearchRow[]>([]);
 
   const result = useMemo(() => {
     if (!initials) return null;
@@ -1068,6 +1071,14 @@ function Index() {
                   </div>
                 </div>
               )}
+              <PairSearchPanel
+                gameName={meta.gameName}
+                provider={meta.provider}
+                drawDate={meta.drawDate}
+                searchNumbers={pairSearch}
+                hits={pairHits}
+                onHistory={setSavedPairSearches}
+              />
             </section>
             <ForecastPanel
               gameName={meta.gameName}
@@ -1078,12 +1089,20 @@ function Index() {
               reappeared={[...result.reappeared]}
               crossGrid={result.matches.map((m) => ({ value: m.value, count: m.total }))}
               duplicatePairs={result.duplicatePairs.map((p) => p.key)}
+              savedPairSearches={savedPairSearches.map((s) => ({
+                label: [s.game_name, s.draw_date].filter(Boolean).join(" ") || "saved search",
+                numbers: s.search_numbers,
+                pairs: s.results
+                  .filter((r) => r.occurrences > 0)
+                  .map((r) => ({ pair: r.pair, occurrences: r.occurrences, where: r.where })),
+              }))}
               history={history.map((h) => ({
                 drawDate: h.draw_date,
                 initials: h.initial_numbers,
                 winning: h.winning_numbers ?? [],
               }))}
             />
+
           </>
 
         )}
