@@ -99,7 +99,22 @@ export const forecastNumbers = createServerFn({ method: "POST" })
             )
             .join(" | ")}`
         : "No saved draw history yet.",
+      data.savedPairSearches.length
+        ? `Saved pair searches (user-flagged numbers and exactly where their pairs occur): ${data.savedPairSearches
+            .slice(0, 15)
+            .map(
+              (s) =>
+                `${s.label || "search"} [${s.numbers.join(" ")}] → ${
+                  s.pairs
+                    .slice(0, 10)
+                    .map((p) => `${p.pair} ×${p.occurrences} (${p.where.join("; ")})`)
+                    .join(" | ") || "no pair occurred"
+                }`,
+            )
+            .join(" || ")}`
+        : "No saved pair searches yet.",
     ].join("\n");
+
 
     const result = streamText({
       model: provider.responses("openai/gpt-6-astra"),
