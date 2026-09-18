@@ -13,6 +13,23 @@ const ForecastInput = z.object({
   reappeared: z.array(z.number()).default([]),
   crossGrid: z.array(NumberStat).default([]),
   duplicatePairs: z.array(z.string()).default([]),
+  savedPairSearches: z
+    .array(
+      z.object({
+        label: z.string().default(""),
+        numbers: z.array(z.number()).default([]),
+        pairs: z
+          .array(
+            z.object({
+              pair: z.string(),
+              occurrences: z.number(),
+              where: z.array(z.string()).default([]),
+            }),
+          )
+          .default([]),
+      }),
+    )
+    .default([]),
   history: z
     .array(
       z.object({

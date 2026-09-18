@@ -14,6 +14,11 @@ type Props = {
   reappeared: number[];
   crossGrid: Stat[];
   duplicatePairs: string[];
+  savedPairSearches: {
+    label: string;
+    numbers: number[];
+    pairs: { pair: string; occurrences: number; where: string[] }[];
+  }[];
   history: { drawDate: string; initials: number[]; winning: number[] }[];
 };
 
