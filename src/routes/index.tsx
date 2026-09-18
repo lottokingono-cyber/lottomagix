@@ -27,7 +27,9 @@ import {
 } from "@/lib/propagation";
 import { DrawPanel } from "@/components/DrawPanel";
 import { ForecastPanel } from "@/components/ForecastPanel";
+import { PairSearchPanel } from "@/components/PairSearchPanel";
 import type { DrawRow } from "@/lib/draws";
+import type { PairSearchRow } from "@/lib/pairSearches";
 
 export const Route = createFileRoute("/")({
   head: () => ({
