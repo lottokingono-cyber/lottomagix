@@ -121,6 +121,7 @@ export const forecastNumbers = createServerFn({ method: "POST" })
       system:
         "You analyse lottery number-propagation grids. Weigh the supplied frequency, cross-grid and pair statistics, plus any historical draws, and suggest five candidate numbers between 1 and 90. " +
         "Saved pair searches are the user's flagged numbers: each entry lists every pair, how often it occurs, and exactly WHERE it occurs (which grid and which frequency line). Treat the where-locations as placement evidence — pairs concentrated in a specific grid or frequency line identify the best places to infer from, so prefer numbers whose pairs repeatedly land in those hot locations. " +
+        "TOP PRIORITY: occurrences in 'Grid 3B — Appears Twice' are the strongest signal. Because Grid 3B reduces every value to its last two digits, a pair appearing twice in Grid 3B marks a collision zone of near-future candidates; weight numbers whose pairs occur there above all other evidence, and name those pairs in your rationale. After that, rank by other multi-line hot locations (Grid 3A, combined tables), then single-line occurrences. " +
         "Be explicit that lottery draws are random and no forecast can be guaranteed. Reply with ONLY a JSON object: {\"numbers\":[5 integers],\"alternates\":[up to 5 integers],\"rationale\":\"2-4 sentences citing which grids/lines you inferred from\",\"confidence\":\"low|medium|high\"}.",
       prompt,
       providerOptions: {
