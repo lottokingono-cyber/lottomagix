@@ -119,7 +119,9 @@ export const forecastNumbers = createServerFn({ method: "POST" })
     const result = streamText({
       model: provider.responses("openai/gpt-6-astra"),
       system:
-        "You analyse lottery number-propagation grids. Weigh the supplied frequency, cross-grid and pair statistics, plus any historical draws, and suggest five candidate numbers between 1 and 90. Be explicit that lottery draws are random and no forecast can be guaranteed. Reply with ONLY a JSON object: {\"numbers\":[5 integers],\"alternates\":[up to 5 integers],\"rationale\":\"2-4 sentences\",\"confidence\":\"low|medium|high\"}.",
+        "You analyse lottery number-propagation grids. Weigh the supplied frequency, cross-grid and pair statistics, plus any historical draws, and suggest five candidate numbers between 1 and 90. " +
+        "Saved pair searches are the user's flagged numbers: each entry lists every pair, how often it occurs, and exactly WHERE it occurs (which grid and which frequency line). Treat the where-locations as placement evidence — pairs concentrated in a specific grid or frequency line identify the best places to infer from, so prefer numbers whose pairs repeatedly land in those hot locations. " +
+        "Be explicit that lottery draws are random and no forecast can be guaranteed. Reply with ONLY a JSON object: {\"numbers\":[5 integers],\"alternates\":[up to 5 integers],\"rationale\":\"2-4 sentences citing which grids/lines you inferred from\",\"confidence\":\"low|medium|high\"}.",
       prompt,
       providerOptions: {
         openai: {
