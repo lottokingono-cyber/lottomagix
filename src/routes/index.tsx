@@ -847,6 +847,147 @@ function Index() {
               </table>
             </section>
 
+            {/* Sequential step analysis */}
+            <section className="mt-10">
+              <h2 className="text-lg font-bold uppercase tracking-wide text-foreground">
+                Sequential Step Analysis
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Each initial number stepped by 1 through 20 — 200 values per grid.
+              </p>
+            </section>
+
+            {[
+              {
+                key: "4A",
+                title: "Grid 4A — Initial Number Plus 1 to 20",
+                sign: "+",
+                grid: result.grid4A,
+                dup: result.grid4ADup,
+                initials: result.grid4AInitials,
+                groups: result.grid4AGroups,
+                summary: result.grid4ASummary,
+              },
+              {
+                key: "4B",
+                title: "Grid 4B — Initial Number Minus 1 to 20",
+                sign: "−",
+                grid: result.grid4B,
+                dup: result.grid4BDup,
+                initials: result.grid4BInitials,
+                groups: result.grid4BGroups,
+                summary: result.grid4BSummary,
+              },
+            ].map((g) => (
+              <div key={g.key}>
+                <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
+                  <h3 className="px-5 pt-5 text-sm font-semibold uppercase tracking-wide text-foreground">
+                    {g.title}
+                  </h3>
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full min-w-[680px] border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="sticky left-0 z-10 border-b border-border bg-muted px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
+                            Step
+                          </th>
+                          {result.initials.map((n, c) => (
+                            <th
+                              key={c}
+                              className="border-b border-l border-border bg-muted/60 px-2 py-2 text-center font-mono text-xs font-semibold text-foreground"
+                            >
+                              {formatNumber(n)}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {g.grid.map((row, r) => (
+                          <tr key={r}>
+                            <td className="sticky left-0 z-10 whitespace-nowrap border-b border-border bg-muted/40 px-3 py-1.5 text-center font-mono text-xs font-semibold text-foreground">
+                              {g.sign}
+                              {INCREMENTS[r]}
+                            </td>
+                            {row.map((value, c) => {
+                              const state = cellState(
+                                value,
+                                g.dup,
+                                new Set<number>(),
+                                new Set<number>(),
+                                g.initials,
+                              );
+                              return (
+                                <td
+                                  key={c}
+                                  className={`border-b border-l px-2 py-1.5 text-center font-mono text-sm tabular-nums ${CELL_STYLES[state]}`}
+                                >
+                                  {formatNumber(value)}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                    Grid {g.key} Frequency
+                  </h3>
+                  <div className="mt-4 space-y-4">
+                    {g.groups.map((group) => (
+                      <div key={group.count}>
+                        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          {group.count === 1
+                            ? "Appears Once"
+                            : group.count === 2
+                              ? "Appears Twice"
+                              : `Appears ${group.count} Times`}{" "}
+                          ({group.values.length})
+                        </h4>
+                        <p className="mt-1 font-mono text-sm leading-relaxed text-foreground">
+                          {group.values.map(padNumber).join(" · ")}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                    Grid {g.key} Summary
+                  </h3>
+                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {[
+                      ["Total cells", g.summary.totalCells],
+                      ["Unique numbers", g.summary.uniqueNumbers],
+                      ["Appearing once", g.summary.appearingOnce],
+                      ["Appearing more than once", g.summary.appearingMoreThanOnce],
+                      ["Total duplicate cells", g.summary.duplicateCells],
+                      ["Highest frequency", g.summary.highestFrequency],
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-lg border border-border bg-background p-3">
+                        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                          {label}
+                        </p>
+                        <p className="mt-1 font-mono text-xl font-bold tabular-nums text-foreground">
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Number(s) with highest frequency
+                  </p>
+                  <p className="mt-1 font-mono text-sm font-semibold text-foreground">
+                    {g.summary.highestValues.map(padNumber).join(" · ")}
+                  </p>
+                </section>
+              </div>
+            ))}
+
             {/* Combined frequency across all four grids */}
             <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
