@@ -109,6 +109,14 @@ function Index() {
     const grid3BNormValues = grid3BValues.map(normalize3B);
     const grid3BFreq = getFrequencyMap(grid3BNormValues);
 
+    // Grid 4A: initials + 1..20. Grid 4B: initials - 1..20.
+    const grid4A = generateAddGrid(initials, INCREMENTS);
+    const grid4AValues = grid4A.flat();
+    const grid4AFreq = getFrequencyMap(grid4AValues);
+    const grid4B = generateSubtractGrid(initials, INCREMENTS);
+    const grid4BValues = grid4B.flat();
+    const grid4BFreq = getFrequencyMap(grid4BValues);
+
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
     for (const [value, count] of diffFreq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
