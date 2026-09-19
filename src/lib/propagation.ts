@@ -154,6 +154,9 @@ export function generateSubtractGrid(initialNumbers: number[], offsets: number[]
   return offsets.map((o) => initialNumbers.map((n) => n - o));
 }
 
+/** The 20 sequential steps used by Grid 4A / Grid 4B. */
+export const INCREMENTS = Array.from({ length: 20 }, (_, i) => i + 1);
+
 /** Rows = offsets, columns = initial numbers. Cell = initial + offset. */
 export function generateAddGrid(initialNumbers: number[], offsets: number[]): number[][] {
   return offsets.map((o) => initialNumbers.map((n) => n + o));
