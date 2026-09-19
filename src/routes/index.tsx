@@ -1015,14 +1015,14 @@ function Index() {
               </div>
             ))}
 
-            {/* Combined frequency across all four grids */}
+            {/* Combined frequency across all six grids */}
             <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Combined Frequency — All Four Grids
+                Combined Frequency — All Six Grids
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Total occurrences of each number across Grid 1, Grid 2, Grid 3A and Grid 3B (
-                {result.allTotalCells} cells).
+                Total occurrences of each number across Grid 1, Grid 2, Grid 3A, Grid 3B, Grid 4A
+                and Grid 4B ({result.allTotalCells} cells).
               </p>
               <div className="mt-4 space-y-4">
                 {result.allGroups.map((group) => (
