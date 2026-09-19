@@ -1121,10 +1121,10 @@ function Index() {
               </div>
             </section>
 
-            {/* Grid-wise pairs comparison between the 4 grids */}
+            {/* Grid-wise pairs comparison between the 6 grids */}
             <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Grid-Wise Pairs Comparison — The Four Grids
+                Grid-Wise Pairs Comparison — The Six Grids
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
                 Numbers that repeat (appear more than once) in both grids of each grid pairing,
