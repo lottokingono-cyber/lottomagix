@@ -188,7 +188,12 @@ function Index() {
         .slice(0, 20)
         .map(([value, count]) => ({ value, count })),
       allTotalCells:
-        grid.flat().length + diffValues.length + grid3AValues.length + grid3BValues.length,
+        grid.flat().length +
+        diffValues.length +
+        grid3AValues.length +
+        grid3BValues.length +
+        grid4AValues.length +
+        grid4BValues.length,
       matches,
       crossSet: new Set(matches.map((m) => m.value)),
       grid3A,
