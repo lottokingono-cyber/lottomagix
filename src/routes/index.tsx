@@ -17,6 +17,7 @@ import {
   getFrequencyMap,
   getCrossGridMatches,
   OFFSETS,
+  INCREMENTS,
   generateSubtractGrid,
   generateAddGrid,
   getGridSummary,
