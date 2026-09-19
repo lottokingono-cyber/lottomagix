@@ -184,6 +184,16 @@ function Index() {
         grid3B.map((row) => row.map(normalize3B)),
         initials,
       ),
+      grid4A,
+      grid4ADup: duplicateSet(grid4AFreq),
+      grid4AGroups: frequencyGroups(grid4AFreq),
+      grid4ASummary: getGridSummary(grid4AValues, grid4AFreq),
+      grid4AInitials: initialsAppearedInGrid(grid4A, initials),
+      grid4B,
+      grid4BDup: duplicateSet(grid4BFreq),
+      grid4BGroups: frequencyGroups(grid4BFreq),
+      grid4BSummary: getGridSummary(grid4BValues, grid4BFreq),
+      grid4BInitials: initialsAppearedInGrid(grid4B, initials),
     };
   }, [initials]);
 
