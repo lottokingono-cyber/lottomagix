@@ -124,24 +124,46 @@ function Index() {
     const allFreq = new Map<number, number>(combinedFreq);
     for (const [value, count] of grid3AFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
     for (const [value, count] of grid3BFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
+    for (const [value, count] of grid4AFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
+    for (const [value, count] of grid4BFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
 
     const pairTables = [
       buildPairTable("Grid 1", frequencyGroups(freq)),
       buildPairTable("Grid 2", frequencyGroups(diffFreq)),
       buildPairTable("Grid 3A", frequencyGroups(grid3AFreq)),
       buildPairTable("Grid 3B", frequencyGroups(grid3BFreq)),
+      buildPairTable("Grid 4A", frequencyGroups(grid4AFreq)),
+      buildPairTable("Grid 4B", frequencyGroups(grid4BFreq)),
       buildPairTable("Combined — Grids 1 & 2", frequencyGroups(combinedFreq)),
-      buildPairTable("Combined — All Four Grids", frequencyGroups(allFreq)),
+      buildPairTable("Combined — All Six Grids", frequencyGroups(allFreq)),
     ];
 
-    const gridPairComparisons = [
-      { label: "Grid 1 × Grid 2", a: "Grid 1", b: "Grid 2", matches: getCrossGridMatches(freq, diffFreq) },
-      { label: "Grid 1 × Grid 3A", a: "Grid 1", b: "Grid 3A", matches: getCrossGridMatches(freq, grid3AFreq) },
-      { label: "Grid 1 × Grid 3B", a: "Grid 1", b: "Grid 3B", matches: getCrossGridMatches(freq, grid3BFreq) },
-      { label: "Grid 2 × Grid 3A", a: "Grid 2", b: "Grid 3A", matches: getCrossGridMatches(diffFreq, grid3AFreq) },
-      { label: "Grid 2 × Grid 3B", a: "Grid 2", b: "Grid 3B", matches: getCrossGridMatches(diffFreq, grid3BFreq) },
-      { label: "Grid 3A × Grid 3B", a: "Grid 3A", b: "Grid 3B", matches: getCrossGridMatches(grid3AFreq, grid3BFreq) },
+    const gridFreqs: { name: string; freq: Map<number, number> }[] = [
+      { name: "Grid 1", freq },
+      { name: "Grid 2", freq: diffFreq },
+      { name: "Grid 3A", freq: grid3AFreq },
+      { name: "Grid 3B", freq: grid3BFreq },
+      { name: "Grid 4A", freq: grid4AFreq },
+      { name: "Grid 4B", freq: grid4BFreq },
     ];
+    const gridPairComparisons: {
+      label: string;
+      a: string;
+      b: string;
+      matches: ReturnType<typeof getCrossGridMatches>;
+    }[] = [];
+    for (let i = 0; i < gridFreqs.length; i++) {
+      for (let j = i + 1; j < gridFreqs.length; j++) {
+        const a = gridFreqs[i]!;
+        const b = gridFreqs[j]!;
+        gridPairComparisons.push({
+          label: `${a.name} × ${b.name}`,
+          a: a.name,
+          b: b.name,
+          matches: getCrossGridMatches(a.freq, b.freq),
+        });
+      }
+    }
 
     return {
       gridPairComparisons,
@@ -166,7 +188,12 @@ function Index() {
         .slice(0, 20)
         .map(([value, count]) => ({ value, count })),
       allTotalCells:
-        grid.flat().length + diffValues.length + grid3AValues.length + grid3BValues.length,
+        grid.flat().length +
+        diffValues.length +
+        grid3AValues.length +
+        grid3BValues.length +
+        grid4AValues.length +
+        grid4BValues.length,
       matches,
       crossSet: new Set(matches.map((m) => m.value)),
       grid3A,
@@ -988,14 +1015,14 @@ function Index() {
               </div>
             ))}
 
-            {/* Combined frequency across all four grids */}
+            {/* Combined frequency across all six grids */}
             <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Combined Frequency — All Four Grids
+                Combined Frequency — All Six Grids
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Total occurrences of each number across Grid 1, Grid 2, Grid 3A and Grid 3B (
-                {result.allTotalCells} cells).
+                Total occurrences of each number across Grid 1, Grid 2, Grid 3A, Grid 3B, Grid 4A
+                and Grid 4B ({result.allTotalCells} cells).
               </p>
               <div className="mt-4 space-y-4">
                 {result.allGroups.map((group) => (
@@ -1094,10 +1121,10 @@ function Index() {
               </div>
             </section>
 
-            {/* Grid-wise pairs comparison between the 4 grids */}
+            {/* Grid-wise pairs comparison between the 6 grids */}
             <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                Grid-Wise Pairs Comparison — The Four Grids
+                Grid-Wise Pairs Comparison — The Six Grids
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
                 Numbers that repeat (appear more than once) in both grids of each grid pairing,
