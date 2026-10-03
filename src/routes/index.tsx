@@ -16,6 +16,7 @@ import {
   generateDifferenceGrid,
   getFrequencyMap,
   getCrossGridMatches,
+  getCrossGroupFrequencyComparisons,
   OFFSETS,
   INCREMENTS,
   generateSubtractGrid,
@@ -117,6 +118,13 @@ function Index() {
     const grid4BValues = grid4B.flat();
     const grid4BFreq = getFrequencyMap(grid4BValues);
 
+    const crossGroupFrequencyComparisons = getCrossGroupFrequencyComparisons({
+      "3a": grid3AFreq,
+      "3b": grid3BFreq,
+      "4a": grid4AFreq,
+      "4b": grid4BFreq,
+    });
+
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
     for (const [value, count] of diffFreq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
@@ -167,6 +175,7 @@ function Index() {
 
     return {
       gridPairComparisons,
+      crossGroupFrequencyComparisons,
       pairTables,
       duplicatePairs: findDuplicatePairs(pairTables),
       grid,
@@ -1289,6 +1298,45 @@ function Index() {
                 winning: h.winning_numbers ?? [],
               }))}
             />
+
+            <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                54 Unique Cross-Group Comparisons
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Shared numbers between frequency groups in Grids 3A, 3B, 4A, and 4B. Each
+                identifier’s final digit is its frequency; comparisons never pair members from
+                the same grid.
+              </p>
+              <div className="mt-4 max-h-[36rem] overflow-auto rounded-md border border-border">
+                <table className="w-full min-w-[34rem] text-left text-xs">
+                  <thead className="sticky top-0 bg-muted text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2 font-medium">#</th>
+                      <th className="px-3 py-2 font-medium">Combination</th>
+                      <th className="px-3 py-2 font-medium">Numbers Appearing in Both</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.crossGroupFrequencyComparisons.map((comparison) => (
+                      <tr key={comparison.combination}>
+                        <td className="border-t border-border px-3 py-1.5 font-mono tabular-nums text-muted-foreground">
+                          {comparison.index}
+                        </td>
+                        <td className="border-t border-border px-3 py-1.5 font-mono font-semibold text-foreground">
+                          {comparison.combination}
+                        </td>
+                        <td className="border-t border-border px-3 py-1.5 font-mono text-foreground">
+                          {comparison.commonNumbers.length > 0
+                            ? comparison.commonNumbers.map(padNumber).join(", ")
+                            : "None"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
 
           </>
 
