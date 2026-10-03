@@ -228,6 +228,50 @@ export function getCrossGridMatches(
   return matches.sort((a, b) => b.total - a.total || a.value - b.value);
 }
 
+export interface CrossGroupFrequencyComparison {
+  index: number;
+  combination: string;
+  commonNumbers: number[];
+}
+
+/** Compare frequency members across the four prime-offset and sequential grids. */
+export function getCrossGroupFrequencyComparisons(
+  groupFrequencies: Record<"3a" | "3b" | "4a" | "4b", Map<number, number>>,
+): CrossGroupFrequencyComparison[] {
+  const groupPairs = [
+    ["3a", "3b"],
+    ["3a", "4a"],
+    ["3a", "4b"],
+    ["3b", "4a"],
+    ["3b", "4b"],
+    ["4a", "4b"],
+  ] as const;
+  const comparisons: CrossGroupFrequencyComparison[] = [];
+
+  for (const [groupA, groupB] of groupPairs) {
+    for (let frequencyA = 1; frequencyA <= 3; frequencyA++) {
+      const valuesA = new Set(
+        [...groupFrequencies[groupA].entries()]
+          .filter(([, count]) => count === frequencyA)
+          .map(([value]) => value),
+      );
+      for (let frequencyB = 1; frequencyB <= 3; frequencyB++) {
+        const commonNumbers = [...groupFrequencies[groupB].entries()]
+          .filter(([value, count]) => count === frequencyB && valuesA.has(value))
+          .map(([value]) => value)
+          .sort((a, b) => a - b);
+        comparisons.push({
+          index: comparisons.length + 1,
+          combination: `${groupA}${frequencyA} – ${groupB}${frequencyB}`,
+          commonNumbers,
+        });
+      }
+    }
+  }
+
+  return comparisons;
+}
+
 /** Normalized initial numbers that appear anywhere in the given grid. */
 export function initialsAppearedInGrid(grid: number[][], initials: number[]): Set<number> {
   const gridValues = new Set<number>();
