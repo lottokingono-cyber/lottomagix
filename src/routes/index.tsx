@@ -129,8 +129,10 @@ function Index() {
     const crossGroupFrequencyComparisons = getCrossGroupFrequencyComparisons(crossGroupFrequencies);
 
     const combinedFreq = new Map<number, number>();
-    for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
-    for (const [value, count] of diffFreq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
+    for (const [value, count] of freq)
+      combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
+    for (const [value, count] of diffFreq)
+      combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
 
     const allFreq = new Map<number, number>(combinedFreq);
     for (const [value, count] of grid3AFreq) allFreq.set(value, (allFreq.get(value) ?? 0) + count);
@@ -280,8 +282,7 @@ function Index() {
     setPairSearch(parsed);
   };
 
-  const pairHits =
-    pairSearch && result ? searchPairs(pairSearch, result.pairTables) : null;
+  const pairHits = pairSearch && result ? searchPairs(pairSearch, result.pairTables) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -455,9 +456,7 @@ function Index() {
                     .join(" · ")}
                 </p>
               ) : (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  No initial numbers reappeared.
-                </p>
+                <p className="mt-3 text-sm text-muted-foreground">No initial numbers reappeared.</p>
               )}
             </section>
 
@@ -471,10 +470,7 @@ function Index() {
                 ["Total duplicate cells", result.stats.duplicateCells],
                 ["Initial numbers reappearing", result.stats.initialReappearing],
               ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className="rounded-lg border border-border bg-card p-3 shadow-sm"
-                >
+                <div key={label} className="rounded-lg border border-border bg-card p-3 shadow-sm">
                   <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                     {label}
                   </p>
@@ -572,9 +568,6 @@ function Index() {
                 ))}
               </div>
             </section>
-
-
-
 
             {/* Combined frequency */}
             <section className="mt-6 rounded-xl border border-crossmatch-border bg-card p-5 shadow-sm">
@@ -727,8 +720,8 @@ function Index() {
                   </h3>
                   {g.key === "3B" && (
                     <p className="px-5 pt-1 text-xs text-muted-foreground">
-                      Frequency and highlighting reduce values to their last two digits (e.g. 178
-                      → 78). Displayed cells keep the full calculated value.
+                      Frequency and highlighting reduce values to their last two digits (e.g. 178 →
+                      78). Displayed cells keep the full calculated value.
                     </p>
                   )}
                   <div className="mt-3 overflow-x-auto">
@@ -816,7 +809,10 @@ function Index() {
                       ["Total duplicate cells", g.summary.duplicateCells],
                       ["Highest frequency", g.summary.highestFrequency],
                     ].map(([label, value]) => (
-                      <div key={label} className="rounded-lg border border-border bg-background p-3">
+                      <div
+                        key={label}
+                        className="rounded-lg border border-border bg-background p-3"
+                      >
                         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                           {label}
                         </p>
@@ -851,7 +847,11 @@ function Index() {
                 </thead>
                 <tbody>
                   {[
-                    ["Total cells", result.grid3ASummary.totalCells, result.grid3BSummary.totalCells],
+                    [
+                      "Total cells",
+                      result.grid3ASummary.totalCells,
+                      result.grid3BSummary.totalCells,
+                    ],
                     [
                       "Unique numbers",
                       result.grid3ASummary.uniqueNumbers,
@@ -1008,7 +1008,10 @@ function Index() {
                       ["Total duplicate cells", g.summary.duplicateCells],
                       ["Highest frequency", g.summary.highestFrequency],
                     ].map(([label, value]) => (
-                      <div key={label} className="rounded-lg border border-border bg-background p-3">
+                      <div
+                        key={label}
+                        className="rounded-lg border border-border bg-background p-3"
+                      >
                         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                           {label}
                         </p>
@@ -1140,8 +1143,8 @@ function Index() {
                 Grid-Wise Pairs Comparison — The Six Grids
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Numbers that repeat (appear more than once) in both grids of each grid pairing,
-                with their counts in each grid.
+                Numbers that repeat (appear more than once) in both grids of each grid pairing, with
+                their counts in each grid.
               </p>
               <div className="mt-4 space-y-6">
                 {result.gridPairComparisons.map((cmp) => (
@@ -1200,8 +1203,8 @@ function Index() {
                 Pair Search
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Enter 5 numbers to form their 10 unique pairs and see exactly where each pair
-                occurs across all six pair tables. Matching ignores the minus sign.
+                Enter 5 numbers to form their 10 unique pairs and see exactly where each pair occurs
+                across all six pair tables. Matching ignores the minus sign.
               </p>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
                 {pairInputs.map((value, i) => (
@@ -1309,9 +1312,9 @@ function Index() {
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
                 Four groups · {result.crossGroupFrequencyLevels} frequency levels · 6 unique group
-                combinations · {result.crossGroupFrequencyComparisons.length} total comparisons
-                (6 × {result.crossGroupFrequencyLevels}²). An identifier’s final digit is the
-                frequency, and only different groups are compared.
+                combinations · {result.crossGroupFrequencyComparisons.length} total comparisons (6 ×{" "}
+                {result.crossGroupFrequencyLevels}²). An identifier’s final digit is the frequency,
+                and only different groups are compared.
               </p>
               <div className="mt-4 max-h-[36rem] overflow-auto rounded-md border border-border">
                 <table className="w-full min-w-[34rem] text-left text-xs">
@@ -1342,9 +1345,7 @@ function Index() {
                 </table>
               </div>
             </section>
-
           </>
-
         )}
       </main>
     </div>

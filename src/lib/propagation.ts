@@ -82,10 +82,7 @@ export interface SummaryStats {
   initialReappearing: number;
 }
 
-export function summaryStats(
-  freq: Map<number, number>,
-  reappeared: Set<number>,
-): SummaryStats {
+export function summaryStats(freq: Map<number, number>, reappeared: Set<number>): SummaryStats {
   let appearingOnce = 0;
   let appearingMoreThanOnce = 0;
   let duplicateCells = 0;
