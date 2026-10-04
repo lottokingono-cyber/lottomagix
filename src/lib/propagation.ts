@@ -234,9 +234,22 @@ export interface CrossGroupFrequencyComparison {
   commonNumbers: number[];
 }
 
-/** Compare frequency members across the four prime-offset and sequential grids. */
+export type CrossGroupFrequencyMaps = Record<"3a" | "3b" | "4a" | "4b", Map<number, number>>;
+
+/** Highest observed frequency across the four grid groups. */
+export function getMaxFrequencyLevel(groupFrequencies: CrossGroupFrequencyMaps): number {
+  let maxFrequency = 0;
+  for (const frequencies of Object.values(groupFrequencies)) {
+    for (const count of frequencies.values()) {
+      if (count > maxFrequency) maxFrequency = count;
+    }
+  }
+  return maxFrequency;
+}
+
+/** Compare all frequency members across different groups up to the observed maximum. */
 export function getCrossGroupFrequencyComparisons(
-  groupFrequencies: Record<"3a" | "3b" | "4a" | "4b", Map<number, number>>,
+  groupFrequencies: CrossGroupFrequencyMaps,
 ): CrossGroupFrequencyComparison[] {
   const groupPairs = [
     ["3a", "3b"],
@@ -247,15 +260,16 @@ export function getCrossGroupFrequencyComparisons(
     ["4a", "4b"],
   ] as const;
   const comparisons: CrossGroupFrequencyComparison[] = [];
+  const maxFrequency = getMaxFrequencyLevel(groupFrequencies);
 
   for (const [groupA, groupB] of groupPairs) {
-    for (let frequencyA = 1; frequencyA <= 3; frequencyA++) {
+    for (let frequencyA = 1; frequencyA <= maxFrequency; frequencyA++) {
       const valuesA = new Set(
         [...groupFrequencies[groupA].entries()]
           .filter(([, count]) => count === frequencyA)
           .map(([value]) => value),
       );
-      for (let frequencyB = 1; frequencyB <= 3; frequencyB++) {
+      for (let frequencyB = 1; frequencyB <= maxFrequency; frequencyB++) {
         const commonNumbers = [...groupFrequencies[groupB].entries()]
           .filter(([value, count]) => count === frequencyB && valuesA.has(value))
           .map(([value]) => value)

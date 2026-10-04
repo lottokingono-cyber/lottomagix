@@ -26,6 +26,7 @@ import {
   buildPairTable,
   findDuplicatePairs,
   searchPairs,
+  getMaxFrequencyLevel,
 } from "@/lib/propagation";
 import { DrawPanel } from "@/components/DrawPanel";
 import { ForecastPanel } from "@/components/ForecastPanel";
@@ -118,12 +119,14 @@ function Index() {
     const grid4BValues = grid4B.flat();
     const grid4BFreq = getFrequencyMap(grid4BValues);
 
-    const crossGroupFrequencyComparisons = getCrossGroupFrequencyComparisons({
+    const crossGroupFrequencies = {
       "3a": grid3AFreq,
       "3b": grid3BFreq,
       "4a": grid4AFreq,
       "4b": grid4BFreq,
-    });
+    };
+    const crossGroupFrequencyLevels = getMaxFrequencyLevel(crossGroupFrequencies);
+    const crossGroupFrequencyComparisons = getCrossGroupFrequencyComparisons(crossGroupFrequencies);
 
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
@@ -176,6 +179,7 @@ function Index() {
     return {
       gridPairComparisons,
       crossGroupFrequencyComparisons,
+      crossGroupFrequencyLevels,
       pairTables,
       duplicatePairs: findDuplicatePairs(pairTables),
       grid,
@@ -1301,12 +1305,13 @@ function Index() {
 
             <section className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                54 Unique Cross-Group Comparisons
+                Dynamic Cross-Group Comparisons
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Shared numbers between frequency groups in Grids 3A, 3B, 4A, and 4B. Each
-                identifier’s final digit is its frequency; comparisons never pair members from
-                the same grid.
+                Four groups · {result.crossGroupFrequencyLevels} frequency levels · 6 unique group
+                combinations · {result.crossGroupFrequencyComparisons.length} total comparisons
+                (6 × {result.crossGroupFrequencyLevels}²). An identifier’s final digit is the
+                frequency, and only different groups are compared.
               </p>
               <div className="mt-4 max-h-[36rem] overflow-auto rounded-md border border-border">
                 <table className="w-full min-w-[34rem] text-left text-xs">
