@@ -234,6 +234,31 @@ export interface CrossGroupFrequencyComparison {
   commonNumbers: number[];
 }
 
+export interface ComparisonColumnFrequency {
+  column: number;
+  repeatedNumbers: { value: number; count: number }[];
+}
+
+export interface ComparisonNumberFrequency {
+  value: number;
+  total: number;
+  columnCounts: { column: number; count: number }[];
+  columns: number[];
+  mainColumns: number[];
+  strongPatterns: string[];
+}
+
+export interface ComparisonPositionAnalysis {
+  maxColumns: number;
+  columnFrequencies: ComparisonColumnFrequency[];
+  globalFrequencies: { value: number; count: number }[];
+  numbers: ComparisonNumberFrequency[];
+  exactlyThree: ComparisonNumberFrequency[];
+  exactlySix: ComparisonNumberFrequency[];
+  repeatedGlobally: ComparisonNumberFrequency[];
+  strongPatterns: ComparisonNumberFrequency[];
+}
+
 /** Compare frequency members across the four prime-offset and sequential grids. */
 export function getCrossGroupFrequencyComparisons(
   groupFrequencies: Record<"3a" | "3b" | "4a" | "4b", Map<number, number>>,
@@ -270,6 +295,89 @@ export function getCrossGroupFrequencyComparisons(
   }
 
   return comparisons;
+}
+
+/**
+ * Summarize the ordered common-number lists from existing comparisons. Each list
+ * position is a spreadsheet column; a number is counted at most once per row.
+ */
+export function getComparisonPositionAnalysis(
+  comparisons: CrossGroupFrequencyComparison[],
+): ComparisonPositionAnalysis {
+  const maxColumns = comparisons.reduce(
+    (maximum, comparison) => Math.max(maximum, comparison.commonNumbers.length),
+    0,
+  );
+  const columnCounts = Array.from({ length: maxColumns }, () => new Map<number, number>());
+  const numberCounts = new Map<number, { total: number; columnCounts: Map<number, number> }>();
+
+  for (const comparison of comparisons) {
+    const seenInRow = new Set<number>();
+    comparison.commonNumbers.forEach((value, index) => {
+      if (seenInRow.has(value)) return;
+      seenInRow.add(value);
+
+      const columnNumber = index + 1;
+      const column = columnCounts[index];
+      if (column) column.set(value, (column.get(value) ?? 0) + 1);
+
+      const stats = numberCounts.get(value) ?? { total: 0, columnCounts: new Map<number, number>() };
+      stats.total++;
+      stats.columnCounts.set(columnNumber, (stats.columnCounts.get(columnNumber) ?? 0) + 1);
+      numberCounts.set(value, stats);
+    });
+  }
+
+  const numbers = [...numberCounts.entries()]
+    .map(([value, stats]) => {
+      const positionalCounts = [...stats.columnCounts.entries()].sort((a, b) => a[0] - b[0]);
+      const highestColumnCount = Math.max(0, ...positionalCounts.map(([, count]) => count));
+      const mainColumns = positionalCounts
+        .filter(([, count]) => count === highestColumnCount)
+        .map(([column]) => column);
+      const rankedColumnCounts = [...positionalCounts].sort((a, b) => b[1] - a[1]);
+      const hasUniqueDominantColumn =
+        positionalCounts.length > 1 &&
+        (rankedColumnCounts[0]?.[1] ?? 0) > (rankedColumnCounts[1]?.[1] ?? 0);
+      const strongPatterns: string[] = [];
+
+      if (stats.total === 3 && highestColumnCount >= 2) {
+        strongPatterns.push("3 appearances, at least 2 in one column");
+      }
+      if (stats.total === 6 && highestColumnCount >= 3) {
+        strongPatterns.push("6 appearances, at least 3 in one column");
+      }
+      if (hasUniqueDominantColumn) {
+        strongPatterns.push("Multiple columns with a dominant column");
+      }
+
+      return {
+        value,
+        total: stats.total,
+        columnCounts: positionalCounts.map(([column, count]) => ({ column, count })),
+        columns: positionalCounts.flatMap(([column, count]) => Array<number>(count).fill(column)),
+        mainColumns,
+        strongPatterns,
+      };
+    })
+    .sort((a, b) => b.total - a.total || a.value - b.value);
+
+  return {
+    maxColumns,
+    columnFrequencies: columnCounts.map((counts, index) => ({
+      column: index + 1,
+      repeatedNumbers: [...counts.entries()]
+        .filter(([, count]) => count > 1)
+        .map(([value, count]) => ({ value, count }))
+        .sort((a, b) => a.value - b.value),
+    })),
+    globalFrequencies: numbers.map(({ value, total }) => ({ value, count: total })),
+    numbers,
+    exactlyThree: numbers.filter((number) => number.total === 3),
+    exactlySix: numbers.filter((number) => number.total === 6),
+    repeatedGlobally: numbers.filter((number) => number.total >= 2),
+    strongPatterns: numbers.filter((number) => number.strongPatterns.length > 0),
+  };
 }
 
 /** Normalized initial numbers that appear anywhere in the given grid. */
