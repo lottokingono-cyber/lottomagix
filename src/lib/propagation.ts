@@ -82,7 +82,10 @@ export interface SummaryStats {
   initialReappearing: number;
 }
 
-export function summaryStats(freq: Map<number, number>, reappeared: Set<number>): SummaryStats {
+export function summaryStats(
+  freq: Map<number, number>,
+  reappeared: Set<number>,
+): SummaryStats {
   let appearingOnce = 0;
   let appearingMoreThanOnce = 0;
   let duplicateCells = 0;
@@ -231,22 +234,9 @@ export interface CrossGroupFrequencyComparison {
   commonNumbers: number[];
 }
 
-export type CrossGroupFrequencyMaps = Record<"3a" | "3b" | "4a" | "4b", Map<number, number>>;
-
-/** Highest observed frequency across the four grid groups. */
-export function getMaxFrequencyLevel(groupFrequencies: CrossGroupFrequencyMaps): number {
-  let maxFrequency = 0;
-  for (const frequencies of Object.values(groupFrequencies)) {
-    for (const count of frequencies.values()) {
-      if (count > maxFrequency) maxFrequency = count;
-    }
-  }
-  return maxFrequency;
-}
-
-/** Compare all frequency members across different groups up to the observed maximum. */
+/** Compare frequency members across the four prime-offset and sequential grids. */
 export function getCrossGroupFrequencyComparisons(
-  groupFrequencies: CrossGroupFrequencyMaps,
+  groupFrequencies: Record<"3a" | "3b" | "4a" | "4b", Map<number, number>>,
 ): CrossGroupFrequencyComparison[] {
   const groupPairs = [
     ["3a", "3b"],
@@ -257,16 +247,15 @@ export function getCrossGroupFrequencyComparisons(
     ["4a", "4b"],
   ] as const;
   const comparisons: CrossGroupFrequencyComparison[] = [];
-  const maxFrequency = getMaxFrequencyLevel(groupFrequencies);
 
   for (const [groupA, groupB] of groupPairs) {
-    for (let frequencyA = 1; frequencyA <= maxFrequency; frequencyA++) {
+    for (let frequencyA = 1; frequencyA <= 3; frequencyA++) {
       const valuesA = new Set(
         [...groupFrequencies[groupA].entries()]
           .filter(([, count]) => count === frequencyA)
           .map(([value]) => value),
       );
-      for (let frequencyB = 1; frequencyB <= maxFrequency; frequencyB++) {
+      for (let frequencyB = 1; frequencyB <= 3; frequencyB++) {
         const commonNumbers = [...groupFrequencies[groupB].entries()]
           .filter(([value, count]) => count === frequencyB && valuesA.has(value))
           .map(([value]) => value)
