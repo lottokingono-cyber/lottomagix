@@ -1,11 +1,12 @@
 import type { ComparisonPositionAnalysis as Analysis } from "@/lib/propagation";
 import { padNumber } from "@/lib/propagation";
+import type { ReactNode } from "react";
 
 interface ComparisonPositionAnalysisProps {
   analysis: Analysis;
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-6 rounded-lg border border-border bg-card p-5">
       <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">{title}</h3>
@@ -14,7 +15,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function EmptyState({ children }: { children: React.ReactNode }) {
+function EmptyState({ children }: { children: ReactNode }) {
   return <p className="text-sm text-muted-foreground">{children}</p>;
 }
 
