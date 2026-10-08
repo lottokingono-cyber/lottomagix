@@ -18,6 +18,7 @@ import {
   getCrossGridMatches,
   getCrossGroupFrequencyComparisons,
   getComparisonPositionAnalysis,
+  getComparisonPairAnalysis,
   OFFSETS,
   INCREMENTS,
   generateSubtractGrid,
@@ -181,6 +182,7 @@ function Index() {
       gridPairComparisons,
       crossGroupFrequencyComparisons,
       comparisonPositionAnalysis,
+      comparisonPairAnalysis,
       pairTables,
       duplicatePairs: findDuplicatePairs(pairTables),
       grid,
@@ -1342,7 +1344,10 @@ function Index() {
                 </table>
               </div>
             </section>
-            <ComparisonPositionAnalysis analysis={result.comparisonPositionAnalysis} />
+            <ComparisonPositionAnalysis
+              analysis={result.comparisonPositionAnalysis}
+              pairAnalysis={result.comparisonPairAnalysis}
+            />
 
           </>
 
