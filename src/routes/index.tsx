@@ -18,6 +18,7 @@ import {
   getCrossGridMatches,
   getCrossGroupFrequencyComparisons,
   getComparisonPositionAnalysis,
+  getComparisonPairAnalysis,
   OFFSETS,
   INCREMENTS,
   generateSubtractGrid,
@@ -127,6 +128,7 @@ function Index() {
       "4b": grid4BFreq,
     });
     const comparisonPositionAnalysis = getComparisonPositionAnalysis(crossGroupFrequencyComparisons);
+    const comparisonPairAnalysis = getComparisonPairAnalysis(crossGroupFrequencyComparisons);
 
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
@@ -180,6 +182,7 @@ function Index() {
       gridPairComparisons,
       crossGroupFrequencyComparisons,
       comparisonPositionAnalysis,
+      comparisonPairAnalysis,
       pairTables,
       duplicatePairs: findDuplicatePairs(pairTables),
       grid,
@@ -1341,7 +1344,10 @@ function Index() {
                 </table>
               </div>
             </section>
-            <ComparisonPositionAnalysis analysis={result.comparisonPositionAnalysis} />
+            <ComparisonPositionAnalysis
+              analysis={result.comparisonPositionAnalysis}
+              pairAnalysis={result.comparisonPairAnalysis}
+            />
 
           </>
 
