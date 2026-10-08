@@ -1,9 +1,13 @@
-import type { ComparisonPositionAnalysis as Analysis } from "@/lib/propagation";
+import type {
+  ComparisonPairAnalysis as PairAnalysis,
+  ComparisonPositionAnalysis as Analysis,
+} from "@/lib/propagation";
 import { padNumber } from "@/lib/propagation";
 import type { ReactNode } from "react";
 
 interface ComparisonPositionAnalysisProps {
   analysis: Analysis;
+  pairAnalysis: PairAnalysis;
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -19,7 +23,7 @@ function EmptyState({ children }: { children: ReactNode }) {
   return <p className="text-sm text-muted-foreground">{children}</p>;
 }
 
-export function ComparisonPositionAnalysis({ analysis }: ComparisonPositionAnalysisProps) {
+export function ComparisonPositionAnalysis({ analysis, pairAnalysis }: ComparisonPositionAnalysisProps) {
   const formatColumns = (columns: number[]) => columns.map((column) => `Column ${column}`).join(", ");
 
   return (
