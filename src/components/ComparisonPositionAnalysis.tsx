@@ -261,13 +261,32 @@ export function ComparisonPositionAnalysis({ analysis, pairAnalysis }: Compariso
           most once per line. Only pairs occurring exactly 3 or exactly 6 times across the 54 lines
           are shown.
         </p>
+        <div className="mb-4 flex flex-wrap gap-2 text-xs">
+          {([
+            { title: "Exactly 3 Times", pairs: pairAnalysis.exactlyThree, label: "pairs occur 3 times" },
+            { title: "Exactly 6 Times", pairs: pairAnalysis.exactlySix, label: "pairs occur 6 times" },
+          ] as const).map(({ title, pairs, label }) => (
+            <span key={title} className="rounded-md border border-border bg-muted px-3 py-1">
+              <span className="font-mono font-semibold tabular-nums text-foreground">{pairs.length}</span>{" "}
+              <span className="text-muted-foreground">{label}</span>
+            </span>
+          ))}
+          <span className="rounded-md border border-border bg-muted px-3 py-1">
+            <span className="font-mono font-semibold tabular-nums text-foreground">
+              {pairAnalysis.exactlyThree.length + pairAnalysis.exactlySix.length}
+            </span>{" "}
+            <span className="text-muted-foreground">qualifying pairs in total</span>
+          </span>
+        </div>
         <div className="grid gap-5 md:grid-cols-2">
           {([
             { title: "Exactly 3 Times", pairs: pairAnalysis.exactlyThree },
             { title: "Exactly 6 Times", pairs: pairAnalysis.exactlySix },
           ] as const).map(({ title, pairs }) => (
             <div key={title}>
-              <h4 className="text-xs font-semibold uppercase text-muted-foreground">{title}</h4>
+              <h4 className="text-xs font-semibold uppercase text-muted-foreground">
+                {title} — {pairs.length} {pairs.length === 1 ? "pair" : "pairs"}
+              </h4>
               {pairs.length === 0 ? (
                 <EmptyState>None.</EmptyState>
               ) : (
