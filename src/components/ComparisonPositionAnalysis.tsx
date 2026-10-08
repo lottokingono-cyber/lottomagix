@@ -323,6 +323,52 @@ export function ComparisonPositionAnalysis({ analysis, pairAnalysis }: Compariso
           ))}
         </div>
       </Section>
+
+      <Section title="Repeated Numbers by Column — Highlighted">
+        <p className="mb-4 text-xs text-muted-foreground">
+          Each comparison column is listed as a row. Highlighted numbers appear more than once in that column.
+        </p>
+        {analysis.columnFrequencies.length === 0 ? (
+          <EmptyState>No comparison columns to display.</EmptyState>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[32rem] text-left text-sm">
+              <thead className="bg-muted text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2 font-medium">Column</th>
+                  <th className="px-3 py-2 font-medium">Repeated numbers</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analysis.columnFrequencies.map(({ column, repeatedNumbers }) => (
+                  <tr key={column}>
+                    <th className="border-t border-border px-3 py-2 text-left font-medium text-foreground">
+                      Column {column}
+                    </th>
+                    <td className="border-t border-border px-3 py-2">
+                      {repeatedNumbers.length === 0 ? (
+                        <span className="text-muted-foreground">No repeated numbers</span>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {repeatedNumbers.map(({ value, count }) => (
+                            <span
+                              key={value}
+                              className="inline-flex items-center gap-2 rounded border border-primary/30 bg-primary/10 px-2 py-1 font-mono text-primary"
+                            >
+                              <span>{padNumber(value)}</span>
+                              <span className="text-xs tabular-nums">×{count}</span>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
     </section>
   );
 }
