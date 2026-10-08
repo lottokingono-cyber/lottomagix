@@ -498,3 +498,53 @@ export function findDuplicatePairs(tables: PairTable[]): DuplicatePair[] {
     .filter((e) => e.sources.length > 1)
     .sort((a, b) => b.sources.length - a.sources.length || b.high - a.high || b.low - a.low);
 }
+
+export interface ComparisonPairFrequency {
+  high: number;
+  low: number;
+  occurrences: number;
+  lines: { index: number; combination: string }[];
+}
+
+export interface ComparisonPairAnalysis {
+  exactlyThree: ComparisonPairFrequency[];
+  exactlySix: ComparisonPairFrequency[];
+}
+
+/**
+ * Count unordered pairs of numbers that co-occur within the same comparison
+ * line. A pair is counted at most once per line; `None` lines contribute
+ * nothing. Only pairs occurring exactly 3 or exactly 6 times are returned.
+ */
+export function getComparisonPairAnalysis(
+  comparisons: CrossGroupFrequencyComparison[],
+): ComparisonPairAnalysis {
+  const pairMap = new Map<string, ComparisonPairFrequency>();
+
+  for (const comparison of comparisons) {
+    const unique = [...new Set(comparison.commonNumbers)];
+    for (let i = 0; i < unique.length; i++) {
+      for (let j = i + 1; j < unique.length; j++) {
+        const a = unique[i] ?? 0;
+        const b = unique[j] ?? 0;
+        const high = Math.max(a, b);
+        const low = Math.min(a, b);
+        const key = `${high}-${low}`;
+        const entry =
+          pairMap.get(key) ?? { high, low, occurrences: 0, lines: [] as ComparisonPairFrequency["lines"] };
+        entry.occurrences++;
+        entry.lines.push({ index: comparison.index, combination: comparison.combination });
+        pairMap.set(key, entry);
+      }
+    }
+  }
+
+  const qualifying = [...pairMap.values()].sort(
+    (a, b) => b.occurrences - a.occurrences || b.high - a.high || b.low - a.low,
+  );
+
+  return {
+    exactlyThree: qualifying.filter((pair) => pair.occurrences === 3),
+    exactlySix: qualifying.filter((pair) => pair.occurrences === 6),
+  };
+}
