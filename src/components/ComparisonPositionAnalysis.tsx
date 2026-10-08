@@ -254,6 +254,56 @@ export function ComparisonPositionAnalysis({ analysis, pairAnalysis }: Compariso
           </div>
         )}
       </Section>
+
+      <Section title="Pair Frequency Analysis">
+        <p className="mb-4 text-xs text-muted-foreground">
+          Unordered pairs of numbers that occur together in the same comparison line, counted at
+          most once per line. Only pairs occurring exactly 3 or exactly 6 times across the 54 lines
+          are shown.
+        </p>
+        <div className="grid gap-5 md:grid-cols-2">
+          {([
+            { title: "Exactly 3 Times", pairs: pairAnalysis.exactlyThree },
+            { title: "Exactly 6 Times", pairs: pairAnalysis.exactlySix },
+          ] as const).map(({ title, pairs }) => (
+            <div key={title}>
+              <h4 className="text-xs font-semibold uppercase text-muted-foreground">{title}</h4>
+              {pairs.length === 0 ? (
+                <EmptyState>None.</EmptyState>
+              ) : (
+                <div className="mt-2 max-h-96 overflow-auto">
+                  <table className="w-full min-w-[24rem] text-left text-sm">
+                    <thead className="sticky top-0 bg-muted text-muted-foreground">
+                      <tr>
+                        <th className="px-3 py-2 font-medium">Pair</th>
+                        <th className="px-3 py-2 text-right font-medium">Occurrences</th>
+                        <th className="px-3 py-2 font-medium">Lines</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pairs.map((pair) => (
+                        <tr key={`${pair.high}-${pair.low}`}>
+                          <td className="border-t border-border px-3 py-2 font-mono">
+                            {padNumber(pair.high)} – {padNumber(pair.low)}
+                          </td>
+                          <td className="border-t border-border px-3 py-2 text-right font-mono tabular-nums">
+                            {pair.occurrences}
+                          </td>
+                          <td className="border-t border-border px-3 py-2 font-mono text-xs">
+                            {pair.lines
+                              .map((line) => `#${line.index} ${line.combination}`)
+                              .join(", ")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </Section>
     </section>
   );
 }
