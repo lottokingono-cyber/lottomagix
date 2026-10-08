@@ -127,6 +127,7 @@ function Index() {
       "4b": grid4BFreq,
     });
     const comparisonPositionAnalysis = getComparisonPositionAnalysis(crossGroupFrequencyComparisons);
+    const comparisonPairAnalysis = getComparisonPairAnalysis(crossGroupFrequencyComparisons);
 
     const combinedFreq = new Map<number, number>();
     for (const [value, count] of freq) combinedFreq.set(value, (combinedFreq.get(value) ?? 0) + count);
