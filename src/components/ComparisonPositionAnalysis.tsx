@@ -25,6 +25,18 @@ function EmptyState({ children }: { children: ReactNode }) {
 
 export function ComparisonPositionAnalysis({ analysis, pairAnalysis }: ComparisonPositionAnalysisProps) {
   const formatColumns = (columns: number[]) => columns.map((column) => `Column ${column}`).join(", ");
+  const numberFrequencyByValue = new Map(analysis.numbers.map((number) => [number.value, number]));
+  const crossColumnTracking = analysis.columnFrequencies
+    .filter(({ column }) => column <= 5)
+    .flatMap(({ column, repeatedNumbers }) =>
+      repeatedNumbers.map(({ value, count }) => ({
+        sourceColumn: column,
+        value,
+        sourceCount: count,
+        otherColumns: (numberFrequencyByValue.get(value)?.columnCounts ?? [])
+          .filter(({ column: otherColumn, count: otherCount }) => otherColumn !== column && otherCount > 0),
+      })),
+    );
 
   return (
     <section className="mt-6 border-t border-border pt-6">
@@ -361,6 +373,55 @@ export function ComparisonPositionAnalysis({ analysis, pairAnalysis }: Compariso
                           ))}
                         </div>
                       )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
+
+      <Section title="Repeated Numbers by Column — Cross-Column Tracking">
+        <p className="mb-4 text-xs text-muted-foreground">
+          Numbers repeated in Columns 1–5, with their counts in every other column where they appear.
+        </p>
+        {crossColumnTracking.length === 0 ? (
+          <EmptyState>No numbers repeat in Columns 1–5.</EmptyState>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[52rem] text-left text-sm">
+              <thead className="bg-muted text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2 font-medium">Source Column</th>
+                  <th className="px-3 py-2 font-medium">Repeated Number</th>
+                  <th className="px-3 py-2 text-right font-medium">Count in Source Column</th>
+                  <th className="px-3 py-2 font-medium">Other Columns Containing Number</th>
+                  <th className="px-3 py-2 font-medium">Count per Other Column</th>
+                </tr>
+              </thead>
+              <tbody>
+                {crossColumnTracking.map(({ sourceColumn, value, sourceCount, otherColumns }) => (
+                  <tr key={`${sourceColumn}-${value}`}>
+                    <td className="border-t border-border px-3 py-2">Column {sourceColumn}</td>
+                    <td className="border-t border-border px-3 py-2">
+                      <span className="inline-flex items-center gap-2 rounded border border-primary/30 bg-primary/10 px-2 py-1 font-mono text-primary">
+                        {padNumber(value)}
+                        <span className="text-xs tabular-nums">×{sourceCount}</span>
+                      </span>
+                    </td>
+                    <td className="border-t border-border px-3 py-2 text-right font-mono tabular-nums">
+                      {sourceCount}
+                    </td>
+                    <td className="border-t border-border px-3 py-2 font-mono">
+                      {otherColumns.length > 0
+                        ? otherColumns.map(({ column }) => `C${column}`).join(", ")
+                        : "None"}
+                    </td>
+                    <td className="border-t border-border px-3 py-2 font-mono">
+                      {otherColumns.length > 0
+                        ? otherColumns.map(({ column, count }) => `C${column}: ${count}`).join(", ")
+                        : "None"}
                     </td>
                   </tr>
                 ))}
