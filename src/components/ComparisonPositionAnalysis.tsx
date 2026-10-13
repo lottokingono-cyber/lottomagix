@@ -37,6 +37,16 @@ export function ComparisonPositionAnalysis({ analysis, pairAnalysis }: Compariso
           .filter(({ column: otherColumn, count: otherCount }) => otherColumn !== column && otherCount > 0),
       })),
     );
+  const columnNumberDisplay = Array.from({ length: analysis.maxColumns }, (_, index) => {
+    const column = index + 1;
+    return {
+      column,
+      numbers: analysis.numbers.flatMap((number) => {
+        const count = number.columnCounts.find((entry) => entry.column === column)?.count ?? 0;
+        return count > 0 ? [{ value: number.value, count, total: number.total }] : [];
+      }),
+    };
+  });
 
   return (
     <section className="mt-6 border-t border-border pt-6">
@@ -429,6 +439,78 @@ export function ComparisonPositionAnalysis({ analysis, pairAnalysis }: Compariso
             </table>
           </div>
         )}
+        <div className="mt-6 border-t border-border pt-5">
+          <h4 className="text-xs font-semibold uppercase text-foreground">Numbers Across All Columns</h4>
+          <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-2">
+              <span className="size-3 rounded-sm border border-duplicate-border bg-duplicate" />
+              Repeated in this column
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="size-3 rounded-sm border border-crossmatch-border bg-crossmatch" />
+              Appears once here, repeated elsewhere
+            </span>
+          </div>
+          <div className="mt-3 overflow-x-auto">
+            {columnNumberDisplay.length === 0 ? (
+              <EmptyState>No comparison columns to display.</EmptyState>
+            ) : (
+              <table className="w-full min-w-[48rem] table-fixed text-left text-sm">
+                <thead className="bg-muted text-muted-foreground">
+                  <tr>
+                    {columnNumberDisplay.map(({ column }) => (
+                      <th key={column} className="min-w-28 border-r border-border px-3 py-2 font-medium last:border-r-0">
+                        Column {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {columnNumberDisplay.map(({ column, numbers }) => (
+                      <td key={column} className="border-r border-t border-border px-3 py-3 align-top last:border-r-0">
+                        {numbers.length === 0 ? (
+                          <span className="text-muted-foreground">—</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5">
+                            {numbers.map(({ value, count, total }) => {
+                              const repeatedHere = count > 1;
+                              const repeatedElsewhere = !repeatedHere && total > 1;
+                              return (
+                                <span
+                                  key={value}
+                                  title={
+                                    repeatedHere
+                                      ? `${padNumber(value)} appears ${count} times in Column ${column}`
+                                      : repeatedElsewhere
+                                        ? `${padNumber(value)} appears once in Column ${column}, ${total - count} times elsewhere`
+                                        : `${padNumber(value)} appears once`
+                                  }
+                                  className={
+                                    repeatedHere
+                                      ? "inline-flex items-center gap-1 rounded border border-duplicate-border bg-duplicate px-1.5 py-1 font-mono text-duplicate-foreground"
+                                      : repeatedElsewhere
+                                        ? "inline-flex items-center gap-1 rounded border border-crossmatch-border bg-crossmatch px-1.5 py-1 font-mono text-crossmatch-foreground"
+                                        : "inline-flex items-center rounded border border-border bg-muted px-1.5 py-1 font-mono text-foreground"
+                                  }
+                                >
+                                  {padNumber(value)}
+                                  {(repeatedHere || repeatedElsewhere) && (
+                                    <span className="text-[10px] tabular-nums">×{count}</span>
+                                  )}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
       </Section>
     </section>
   );
